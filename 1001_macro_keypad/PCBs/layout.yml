@@ -6,7 +6,7 @@ points:
         pinky:
           key:
             spread: 50
-            splay: 15
+            splay: 20
             origin: [0, -17]
           rows:
             bottom:
@@ -21,7 +21,7 @@ points:
         ring:
           key:
             spread: 19
-            stagger: 6
+            stagger: 7
             splay: -5
             origin: [0, -17]
           rows:
@@ -37,9 +37,9 @@ points:
         middle:
           key:
             shift: [0.2, 0]
-            spread: 18
-            stagger: 17/3
-            splay: -5
+            spread: 19
+            stagger: 2
+            splay: -6
             origin: [0, -17]
           rows:
             bottom:
@@ -54,8 +54,8 @@ points:
         index:
           key:
             spread: 18
-            stagger: -17/3
-            splay: -5
+            stagger: -10
+            splay: -8
             origin: [0, -17]
           rows:
             bottom:
@@ -77,11 +77,11 @@ points:
     thumb:
       anchor:
         ref: matrix_index_bottom
-        shift: [10,-24]
+        shift: [30,-35]
       columns:
         first:
           key:
-            splay: -15
+            splay: -30
           rows:
             only:
               column_net: P8
