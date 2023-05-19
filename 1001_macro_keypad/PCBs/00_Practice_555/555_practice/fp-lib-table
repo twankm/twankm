@@ -1,0 +1,4 @@
+(fp_lib_table
+  (version 7)
+  (lib (name "555_Badge")(type "KiCad")(uri "D:/Resources/Personnal_GitHub/twankm/1001_macro_keypad/PCBs/00_Practice_555/555_practice")(options "")(descr ""))
+)

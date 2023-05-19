@@ -1,0 +1,449 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<export version="E">
+  <design>
+    <source>D:\Resources\Personnal_GitHub\twankm\1001_macro_keypad\PCBs\00_Practice_555\555_practice\555_practice.kicad_sch</source>
+    <date>5/17/2023 9:46:46 AM</date>
+    <tool>Eeschema 7.0.2</tool>
+    <sheet number="1" name="/" tstamps="/">
+      <title_block>
+        <title>555 Badge</title>
+        <company/>
+        <rev>v01</rev>
+        <date>2023-05-15</date>
+        <source>555_practice.kicad_sch</source>
+        <comment number="1" value=""/>
+        <comment number="2" value=""/>
+        <comment number="3" value=""/>
+        <comment number="4" value=""/>
+        <comment number="5" value=""/>
+        <comment number="6" value=""/>
+        <comment number="7" value="License: cc-by4.0"/>
+        <comment number="8" value="Author: Taewan Kim"/>
+        <comment number="9" value=""/>
+      </title_block>
+    </sheet>
+  </design>
+  <components>
+    <comp ref="BAT1">
+      <value>BS-7</value>
+      <footprint>LED_THT:LED_D3.0mm</footprint>
+      <datasheet>http://www.memoryprotectiondevices.com/datasheets/BS-7-datasheet.pdf</datasheet>
+      <fields>
+        <field name="Category">Battery Products</field>
+        <field name="DK_Datasheet_Link">http://www.memoryprotectiondevices.com/datasheets/BS-7-datasheet.pdf</field>
+        <field name="DK_Detail_Page">/product-detail/en/mpd-memory-protection-devices/BS-7/BS-7-ND/389447</field>
+        <field name="Description">BATTERY HOLDER COIN 20MM PC PIN</field>
+        <field name="Digi-Key_PN">BS-7-ND</field>
+        <field name="Family">Battery Holders, Clips, Contacts</field>
+        <field name="MPN">BS-7</field>
+        <field name="Manufacturer">MPD (Memory Protection Devices)</field>
+        <field name="Status">Active</field>
+      </fields>
+      <libsource lib="dk_Battery-Holders-Clips-Contacts" part="BS-7" description="BATTERY HOLDER COIN 20MM PC PIN"/>
+      <property name="Digi-Key_PN" value="BS-7-ND"/>
+      <property name="MPN" value="BS-7"/>
+      <property name="Category" value="Battery Products"/>
+      <property name="Family" value="Battery Holders, Clips, Contacts"/>
+      <property name="DK_Datasheet_Link" value="http://www.memoryprotectiondevices.com/datasheets/BS-7-datasheet.pdf"/>
+      <property name="DK_Detail_Page" value="/product-detail/en/mpd-memory-protection-devices/BS-7/BS-7-ND/389447"/>
+      <property name="Description" value="BATTERY HOLDER COIN 20MM PC PIN"/>
+      <property name="Manufacturer" value="MPD (Memory Protection Devices)"/>
+      <property name="Status" value="Active"/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="555_practice.kicad_sch"/>
+      <property name="ki_description" value="BATTERY HOLDER COIN 20MM PC PIN"/>
+      <property name="ki_keywords" value="BS-7-ND"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>d50317da-161d-42a9-a78a-493bd7c1d5a1</tstamps>
+    </comp>
+    <comp ref="C1">
+      <value>100uF</value>
+      <footprint>Capacitor_THT:CP_Radial_D5.0mm_P2.00mm</footprint>
+      <libsource lib="Device" part="C_Polarized_US" description="Polarized capacitor, US symbol"/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="555_practice.kicad_sch"/>
+      <property name="ki_description" value="Polarized capacitor, US symbol"/>
+      <property name="ki_keywords" value="cap capacitor"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>e6414698-5055-4cd7-ac9f-66cb24f0b37a</tstamps>
+    </comp>
+    <comp ref="C2">
+      <value>10uF</value>
+      <footprint>Capacitor_THT:CP_Radial_D6.3mm_P2.50mm</footprint>
+      <libsource lib="Device" part="C_Polarized_US" description="Polarized capacitor, US symbol"/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="555_practice.kicad_sch"/>
+      <property name="ki_description" value="Polarized capacitor, US symbol"/>
+      <property name="ki_keywords" value="cap capacitor"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>724a3d3a-5a1f-4554-9ca4-f9693ad25376</tstamps>
+    </comp>
+    <comp ref="D1">
+      <value>RED</value>
+      <footprint>LED_THT:LED_D3.0mm</footprint>
+      <libsource lib="Device" part="LED" description="Light emitting diode"/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="555_practice.kicad_sch"/>
+      <property name="ki_description" value="Light emitting diode"/>
+      <property name="ki_keywords" value="LED diode"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>b60428ad-2f46-4d13-bcc3-fa977f138532</tstamps>
+    </comp>
+    <comp ref="D2">
+      <value>RED</value>
+      <footprint>LED_THT:LED_D3.0mm</footprint>
+      <libsource lib="Device" part="LED" description="Light emitting diode"/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="555_practice.kicad_sch"/>
+      <property name="ki_description" value="Light emitting diode"/>
+      <property name="ki_keywords" value="LED diode"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>a8288590-890d-4108-899d-c21172474234</tstamps>
+    </comp>
+    <comp ref="Q1">
+      <value>2N3904</value>
+      <footprint>Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P7.62mm_Horizontal</footprint>
+      <datasheet>https://www.onsemi.com/pub/Collateral/2N3903-D.PDF</datasheet>
+      <libsource lib="Transistor_BJT" part="2N3904" description="0.2A Ic, 40V Vce, Small Signal NPN Transistor, TO-92"/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="555_practice.kicad_sch"/>
+      <property name="ki_description" value="0.2A Ic, 40V Vce, Small Signal NPN Transistor, TO-92"/>
+      <property name="ki_keywords" value="NPN Transistor"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>cc65022e-f790-4c55-825d-847fc0ef9665</tstamps>
+    </comp>
+    <comp ref="R1">
+      <value>22k</value>
+      <footprint>Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P7.62mm_Horizontal</footprint>
+      <libsource lib="Device" part="R" description="Resistor"/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="555_practice.kicad_sch"/>
+      <property name="ki_description" value="Resistor"/>
+      <property name="ki_keywords" value="R res resistor"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>06f81eba-6007-4196-87a4-51a318ff3c10</tstamps>
+    </comp>
+    <comp ref="R2">
+      <value>330k</value>
+      <footprint>Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P7.62mm_Horizontal</footprint>
+      <libsource lib="Device" part="R" description="Resistor"/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="555_practice.kicad_sch"/>
+      <property name="ki_description" value="Resistor"/>
+      <property name="ki_keywords" value="R res resistor"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>aa8723b9-7ded-4d2d-ac62-72405d732e0f</tstamps>
+    </comp>
+    <comp ref="R3">
+      <value>22k</value>
+      <footprint>Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P7.62mm_Horizontal</footprint>
+      <libsource lib="Device" part="R" description="Resistor"/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="555_practice.kicad_sch"/>
+      <property name="ki_description" value="Resistor"/>
+      <property name="ki_keywords" value="R res resistor"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>43bd08ef-b435-47c4-a123-1e193291d005</tstamps>
+    </comp>
+    <comp ref="R4">
+      <value>100k</value>
+      <footprint>Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P7.62mm_Horizontal</footprint>
+      <libsource lib="Device" part="R" description="Resistor"/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="555_practice.kicad_sch"/>
+      <property name="ki_description" value="Resistor"/>
+      <property name="ki_keywords" value="R res resistor"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>ad1e1752-9209-4ed7-aee5-881d5990ef4d</tstamps>
+    </comp>
+    <comp ref="R5">
+      <value>10k</value>
+      <footprint>Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P7.62mm_Horizontal</footprint>
+      <libsource lib="Device" part="R" description="Resistor"/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="555_practice.kicad_sch"/>
+      <property name="ki_description" value="Resistor"/>
+      <property name="ki_keywords" value="R res resistor"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>da0e879b-5792-4327-a068-c0a8980deac8</tstamps>
+    </comp>
+    <comp ref="R6">
+      <value>100k</value>
+      <footprint>Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P7.62mm_Horizontal</footprint>
+      <libsource lib="Device" part="R" description="Resistor"/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="555_practice.kicad_sch"/>
+      <property name="ki_description" value="Resistor"/>
+      <property name="ki_keywords" value="R res resistor"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>6e9d5586-b01d-400b-919a-16e0dc8861d1</tstamps>
+    </comp>
+    <comp ref="R7">
+      <value>100k</value>
+      <footprint>Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P7.62mm_Horizontal</footprint>
+      <libsource lib="Device" part="R" description="Resistor"/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="555_practice.kicad_sch"/>
+      <property name="ki_description" value="Resistor"/>
+      <property name="ki_keywords" value="R res resistor"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>88767653-09d9-42b7-ace3-09726ab257f4</tstamps>
+    </comp>
+    <comp ref="S1">
+      <value>EG1218</value>
+      <footprint>digikey-footprints:Switch_Slide_11.6x4mm_EG1218</footprint>
+      <datasheet>http://spec_sheets.e-switch.com/specs/P040040.pdf</datasheet>
+      <fields>
+        <field name="Category">Switches</field>
+        <field name="DK_Datasheet_Link">http://spec_sheets.e-switch.com/specs/P040040.pdf</field>
+        <field name="DK_Detail_Page">/product-detail/en/e-switch/EG1218/EG1903-ND/101726</field>
+        <field name="Description">SWITCH SLIDE SPDT 200MA 30V</field>
+        <field name="Digi-Key_PN">EG1903-ND</field>
+        <field name="Family">Slide Switches</field>
+        <field name="MPN">EG1218</field>
+        <field name="Manufacturer">E-Switch</field>
+        <field name="Status">Active</field>
+      </fields>
+      <libsource lib="dk_Slide-Switches" part="EG1218" description="SWITCH SLIDE SPDT 200MA 30V"/>
+      <property name="Digi-Key_PN" value="EG1903-ND"/>
+      <property name="MPN" value="EG1218"/>
+      <property name="Category" value="Switches"/>
+      <property name="Family" value="Slide Switches"/>
+      <property name="DK_Datasheet_Link" value="http://spec_sheets.e-switch.com/specs/P040040.pdf"/>
+      <property name="DK_Detail_Page" value="/product-detail/en/e-switch/EG1218/EG1903-ND/101726"/>
+      <property name="Description" value="SWITCH SLIDE SPDT 200MA 30V"/>
+      <property name="Manufacturer" value="E-Switch"/>
+      <property name="Status" value="Active"/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="555_practice.kicad_sch"/>
+      <property name="ki_description" value="SWITCH SLIDE SPDT 200MA 30V"/>
+      <property name="ki_keywords" value="EG1903-ND EG"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>95352abe-0c14-450d-b7c5-22754ee4ef87</tstamps>
+    </comp>
+    <comp ref="U1">
+      <value>7555</value>
+      <footprint>555_Badge:ICM7555-PDIP</footprint>
+      <libsource lib="New_Library" part="7555" description=""/>
+      <property name="Sheetname" value=""/>
+      <property name="Sheetfile" value="555_practice.kicad_sch"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamps>38f61769-279a-4fb0-aee3-50ca2bb90f2f</tstamps>
+    </comp>
+  </components>
+  <libparts>
+    <libpart lib="Device" part="C_Polarized_US">
+      <description>Polarized capacitor, US symbol</description>
+      <docs>~</docs>
+      <footprints>
+        <fp>CP_*</fp>
+      </footprints>
+      <fields>
+        <field name="Reference">C</field>
+        <field name="Value">C_Polarized_US</field>
+        <field name="Datasheet">~</field>
+      </fields>
+      <pins>
+        <pin num="1" name="" type="passive"/>
+        <pin num="2" name="" type="passive"/>
+      </pins>
+    </libpart>
+    <libpart lib="Device" part="LED">
+      <description>Light emitting diode</description>
+      <docs>~</docs>
+      <footprints>
+        <fp>LED*</fp>
+        <fp>LED_SMD:*</fp>
+        <fp>LED_THT:*</fp>
+      </footprints>
+      <fields>
+        <field name="Reference">D</field>
+        <field name="Value">LED</field>
+        <field name="Datasheet">~</field>
+      </fields>
+      <pins>
+        <pin num="1" name="K" type="passive"/>
+        <pin num="2" name="A" type="passive"/>
+      </pins>
+    </libpart>
+    <libpart lib="Device" part="R">
+      <description>Resistor</description>
+      <docs>~</docs>
+      <footprints>
+        <fp>R_*</fp>
+      </footprints>
+      <fields>
+        <field name="Reference">R</field>
+        <field name="Value">R</field>
+        <field name="Datasheet">~</field>
+      </fields>
+      <pins>
+        <pin num="1" name="" type="passive"/>
+        <pin num="2" name="" type="passive"/>
+      </pins>
+    </libpart>
+    <libpart lib="New_Library" part="7555">
+      <fields>
+        <field name="Reference">U</field>
+      </fields>
+      <pins>
+        <pin num="1" name="GND" type="input"/>
+        <pin num="2" name="TRIG" type="input"/>
+        <pin num="3" name="OUT" type="input"/>
+        <pin num="4" name="~RESET" type="input"/>
+        <pin num="5" name="CV" type="input"/>
+        <pin num="6" name="THRES" type="input"/>
+        <pin num="7" name="DIS" type="input"/>
+        <pin num="8" name="VDD" type="input"/>
+      </pins>
+    </libpart>
+    <libpart lib="Transistor_BJT" part="2N3904">
+      <description>0.2A Ic, 40V Vce, Small Signal NPN Transistor, TO-92</description>
+      <docs>https://www.onsemi.com/pub/Collateral/2N3903-D.PDF</docs>
+      <footprints>
+        <fp>TO?92*</fp>
+      </footprints>
+      <fields>
+        <field name="Reference">Q</field>
+        <field name="Value">2N3904</field>
+        <field name="Footprint">Package_TO_SOT_THT:TO-92_Inline</field>
+        <field name="Datasheet">https://www.onsemi.com/pub/Collateral/2N3903-D.PDF</field>
+      </fields>
+      <pins>
+        <pin num="1" name="E" type="passive"/>
+        <pin num="2" name="B" type="passive"/>
+        <pin num="3" name="C" type="passive"/>
+      </pins>
+    </libpart>
+    <libpart lib="dk_Battery-Holders-Clips-Contacts" part="BS-7">
+      <description>BATTERY HOLDER COIN 20MM PC PIN</description>
+      <docs>http://www.memoryprotectiondevices.com/datasheets/BS-7-datasheet.pdf</docs>
+      <fields>
+        <field name="Reference">BAT</field>
+        <field name="Value">BS-7</field>
+        <field name="Footprint">digikey-footprints:Battery_Holder_Coin_2032_BS-7</field>
+        <field name="Datasheet">http://www.memoryprotectiondevices.com/datasheets/BS-7-datasheet.pdf</field>
+        <field name="Digi-Key_PN">BS-7-ND</field>
+        <field name="MPN">BS-7</field>
+        <field name="Category">Battery Products</field>
+        <field name="Family">Battery Holders, Clips, Contacts</field>
+        <field name="DK_Datasheet_Link">http://www.memoryprotectiondevices.com/datasheets/BS-7-datasheet.pdf</field>
+        <field name="DK_Detail_Page">/product-detail/en/mpd-memory-protection-devices/BS-7/BS-7-ND/389447</field>
+        <field name="Description">BATTERY HOLDER COIN 20MM PC PIN</field>
+        <field name="Manufacturer">MPD (Memory Protection Devices)</field>
+        <field name="Status">Active</field>
+      </fields>
+      <pins>
+        <pin num="Neg" name="" type="power_out"/>
+        <pin num="Pos" name="" type="power_out"/>
+      </pins>
+    </libpart>
+    <libpart lib="dk_Slide-Switches" part="EG1218">
+      <description>SWITCH SLIDE SPDT 200MA 30V</description>
+      <docs>http://spec_sheets.e-switch.com/specs/P040040.pdf</docs>
+      <fields>
+        <field name="Reference">S</field>
+        <field name="Value">EG1218</field>
+        <field name="Footprint">digikey-footprints:Switch_Slide_11.6x4mm_EG1218</field>
+        <field name="Datasheet">http://spec_sheets.e-switch.com/specs/P040040.pdf</field>
+        <field name="Digi-Key_PN">EG1903-ND</field>
+        <field name="MPN">EG1218</field>
+        <field name="Category">Switches</field>
+        <field name="Family">Slide Switches</field>
+        <field name="DK_Datasheet_Link">http://spec_sheets.e-switch.com/specs/P040040.pdf</field>
+        <field name="DK_Detail_Page">/product-detail/en/e-switch/EG1218/EG1903-ND/101726</field>
+        <field name="Description">SWITCH SLIDE SPDT 200MA 30V</field>
+        <field name="Manufacturer">E-Switch</field>
+        <field name="Status">Active</field>
+      </fields>
+      <pins>
+        <pin num="1" name="" type="passive"/>
+        <pin num="2" name="" type="passive"/>
+        <pin num="3" name="" type="passive"/>
+      </pins>
+    </libpart>
+  </libparts>
+  <libraries>
+    <library logical="Device">
+      <uri>C:\Program Files\KiCad\7.0\share\kicad\symbols\/Device.kicad_sym</uri>
+    </library>
+    <library logical="New_Library">
+      <uri>D:\Resources\Personnal_GitHub\twankm\1001_macro_keypad\PCBs\00_Practice_555\555_practice/New_Library.kicad_sym</uri>
+    </library>
+    <library logical="Transistor_BJT">
+      <uri>C:\Program Files\KiCad\7.0\share\kicad\symbols\/Transistor_BJT.kicad_sym</uri>
+    </library>
+    <library logical="dk_Battery-Holders-Clips-Contacts">
+      <uri>C:/Users/Admin/Documents/KiCad/7.0/symbols/digikey-kicad-library-master/digikey-symbols/dk_Battery-Holders-Clips-Contacts.lib</uri>
+    </library>
+    <library logical="dk_Slide-Switches">
+      <uri>C:/Users/Admin/Documents/KiCad/7.0/symbols/digikey-kicad-library-master/digikey-symbols/dk_Slide-Switches.lib</uri>
+    </library>
+  </libraries>
+  <nets>
+    <net code="1" name="GND">
+      <node ref="BAT1" pin="Pos" pintype="power_out"/>
+      <node ref="C1" pin="2" pintype="passive"/>
+      <node ref="C2" pin="2" pintype="passive"/>
+      <node ref="Q1" pin="1" pinfunction="E" pintype="passive"/>
+      <node ref="R4" pin="2" pintype="passive"/>
+      <node ref="U1" pin="1" pinfunction="GND" pintype="input"/>
+    </net>
+    <net code="2" name="Net-(BAT1-PadNeg)">
+      <node ref="BAT1" pin="Neg" pintype="power_out"/>
+      <node ref="S1" pin="3" pintype="passive"/>
+    </net>
+    <net code="3" name="Net-(C1-Pad1)">
+      <node ref="C1" pin="1" pintype="passive"/>
+      <node ref="R3" pin="2" pintype="passive"/>
+      <node ref="R4" pin="1" pintype="passive"/>
+      <node ref="R5" pin="1" pintype="passive"/>
+    </net>
+    <net code="4" name="Net-(D1-A)">
+      <node ref="D1" pin="2" pinfunction="A" pintype="passive"/>
+      <node ref="R6" pin="2" pintype="passive"/>
+    </net>
+    <net code="5" name="Net-(D1-K)">
+      <node ref="D1" pin="1" pinfunction="K" pintype="passive"/>
+      <node ref="D2" pin="1" pinfunction="K" pintype="passive"/>
+      <node ref="Q1" pin="3" pinfunction="C" pintype="passive"/>
+    </net>
+    <net code="6" name="Net-(D2-A)">
+      <node ref="D2" pin="2" pinfunction="A" pintype="passive"/>
+      <node ref="R7" pin="2" pintype="passive"/>
+    </net>
+    <net code="7" name="Net-(Q1-B)">
+      <node ref="Q1" pin="2" pinfunction="B" pintype="passive"/>
+      <node ref="R5" pin="2" pintype="passive"/>
+    </net>
+    <net code="8" name="Net-(U1-DIS)">
+      <node ref="R1" pin="2" pintype="passive"/>
+      <node ref="R2" pin="1" pintype="passive"/>
+      <node ref="U1" pin="7" pinfunction="DIS" pintype="input"/>
+    </net>
+    <net code="9" name="Net-(U1-OUT)">
+      <node ref="R3" pin="1" pintype="passive"/>
+      <node ref="U1" pin="3" pinfunction="OUT" pintype="input"/>
+    </net>
+    <net code="10" name="Net-(U1-THRES)">
+      <node ref="C2" pin="1" pintype="passive"/>
+      <node ref="R2" pin="2" pintype="passive"/>
+      <node ref="U1" pin="2" pinfunction="TRIG" pintype="input"/>
+      <node ref="U1" pin="6" pinfunction="THRES" pintype="input"/>
+    </net>
+    <net code="11" name="VCC">
+      <node ref="R1" pin="1" pintype="passive"/>
+      <node ref="R6" pin="1" pintype="passive"/>
+      <node ref="R7" pin="1" pintype="passive"/>
+      <node ref="S1" pin="2" pintype="passive"/>
+      <node ref="U1" pin="4" pinfunction="~RESET" pintype="input"/>
+      <node ref="U1" pin="8" pinfunction="VDD" pintype="input"/>
+    </net>
+    <net code="12" name="unconnected-(S1-Pad1)">
+      <node ref="S1" pin="1" pintype="passive"/>
+    </net>
+    <net code="13" name="unconnected-(U1-CV-Pad5)">
+      <node ref="U1" pin="5" pinfunction="CV" pintype="input"/>
+    </net>
+  </nets>
+</export>
