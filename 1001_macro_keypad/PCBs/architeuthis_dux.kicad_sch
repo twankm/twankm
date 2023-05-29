@@ -1821,22 +1821,22 @@
     )
   )
 
-  (symbol (lib_id "power:+5V") (at 151.13 41.91 270) (unit 1)
+  (symbol (lib_id "power:+5V") (at 151.13 52.07 270) (unit 1)
     (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
     (uuid a737b973-de74-4525-af39-9629b1f72664)
-    (property "Reference" "#PWR01" (at 147.32 41.91 0)
+    (property "Reference" "#PWR01" (at 147.32 52.07 0)
       (effects (font (size 1.27 1.27)) hide)
     )
-    (property "Value" "+5V" (at 154.94 42.545 90)
+    (property "Value" "+5V" (at 154.94 52.705 90)
       (effects (font (size 1.27 1.27)) (justify left))
     )
-    (property "Footprint" "" (at 151.13 41.91 0)
+    (property "Footprint" "" (at 151.13 52.07 0)
       (effects (font (size 1.27 1.27)) hide)
     )
-    (property "Datasheet" "" (at 151.13 41.91 0)
+    (property "Datasheet" "" (at 151.13 52.07 0)
       (effects (font (size 1.27 1.27)) hide)
     )
-    (pin "1" (uuid 9e246975-c8be-4904-91bb-93979f7a1eb3))
+    (pin "1" (uuid caf9354b-f7e2-4496-b16e-57f5a20c85eb))
     (instances
       (project "architeuthis_dux"
         (path "/4d2fbfb9-c67d-4ccb-bbaa-2d2f4be0cbd8"
