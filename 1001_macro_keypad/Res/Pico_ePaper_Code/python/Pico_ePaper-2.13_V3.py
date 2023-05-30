@@ -643,7 +643,7 @@ if __name__=='__main__':
     epd.delay_ms(2000)
     
     epd.init()
-    for i in range(0, 10):
+    for i in range(0, 3):
         epd.fill_rect(175, 105, 10, 10, 0xff)
         epd.text(str(i), 177, 106, 0x00)
         epd.display_Partial(epd.buffer)
@@ -651,44 +651,54 @@ if __name__=='__main__':
     print("sleep")
     epd.init()
     epd.Clear()
-    epd.delay_ms(2000)
-    epd.sleep()
-    
-    
-    
-    epd = EPD_2in13_V3_Portrait()
-    epd.Clear()
-    
     epd.fill(0xff)
-    epd.text("Waveshare", 0, 10, 0x00)
-    epd.text("ePaper-2.13_V3", 0, 30, 0x00)
-    epd.text("Raspberry Pico", 0, 50, 0x00)
-    epd.text("Hello World", 0, 70, 0x00)
+    epd.text("Taewan", 0, 10, 0x00)
+    epd.vline(5, 55, 20, 0x00)
+    epd.text("Hangul not supported", 0, 30, 0x00)
     epd.display(epd.buffer)
-    epd.delay_ms(2000)
-    
-    epd.vline(10, 90, 60, 0x00)
-    epd.vline(90, 90, 60, 0x00)
-    epd.hline(10, 90, 80, 0x00)
-    epd.hline(10, 150, 80, 0x00)
-    epd.line(10, 90, 90, 150, 0x00)
-    epd.line(90, 90, 10, 150, 0x00)
-    epd.display(epd.buffer)
-    epd.delay_ms(2000)
-    
-    epd.rect(10, 180, 50, 40, 0x00)
-    epd.fill_rect(60, 180, 50, 40, 0x00)
-    epd.Display_Base(epd.buffer)
-    epd.delay_ms(2000)
-    
-    epd.init()
-    for i in range(0, 10):
-        epd.fill_rect(40, 230, 40, 10, 0xff)
-        epd.text(str(i), 60, 230, 0x00)
-        epd.display_Partial(epd.buffer)
-        
-    print("sleep")
-    epd.init()
-    epd.Clear()
     epd.delay_ms(2000)
     epd.sleep()
+    
+    
+    
+    # epd = EPD_2in13_V3_Portrait()
+    # epd.Clear()
+    
+    # epd.fill(0xff)
+    # epd.text("Waveshare", 0, 10, 0x00)
+    # epd.text("ePaper-2.13_V3", 0, 30, 0x00)
+    # epd.text("Raspberry Pico", 0, 50, 0x00)
+    # epd.text("Hello World", 0, 70, 0x00)
+    # epd.display(epd.buffer)
+    # epd.delay_ms(2000)
+    
+    # epd.vline(10, 90, 60, 0x00)
+    # epd.vline(90, 90, 60, 0x00)
+    # epd.hline(10, 90, 80, 0x00)
+    # epd.hline(10, 150, 80, 0x00)
+    # epd.line(10, 90, 90, 150, 0x00)
+    # epd.line(90, 90, 10, 150, 0x00)
+    # epd.display(epd.buffer)
+    # epd.delay_ms(2000)
+    
+    # epd.rect(10, 180, 50, 40, 0x00)
+    # epd.fill_rect(60, 180, 50, 40, 0x00)
+    # epd.Display_Base(epd.buffer)
+    # epd.delay_ms(2000)
+    
+    # epd.init()
+    # for i in range(0, 10):
+    #     epd.fill_rect(40, 230, 40, 10, 0xff)
+    #     epd.text(str(i), 60, 230, 0x00)
+    #     epd.display_Partial(epd.buffer)
+        
+    # print("sleep")
+    # epd.init()
+    # epd.Clear()
+
+    # epd.fill(0xff)
+    # epd.text("Taewan", 0, 10, 0x00)
+    # epd.text("태완", 0, 30, 0x00)
+    # epd.display(epd.buffer)
+    # epd.delay_ms(2000)
+    # epd.sleep()
