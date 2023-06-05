@@ -1,0 +1,1 @@
+KY-040 Rotary Encoder by mozzwald on Thingiverse: https://www.thingiverse.com/thing:3748001
