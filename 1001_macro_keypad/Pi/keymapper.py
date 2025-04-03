@@ -72,32 +72,7 @@ class Ui_MainWindow(object):
         # 반복문으로 레이아웃과 위젯 생성
         self.labels = []
         self.buttons = []
-        for i in range(12):  # 12개의 그룹 생성
-            layout = QtWidgets.QVBoxLayout()
-            layout.setObjectName(f"BindingGroup{i}")
-
-            label = QtWidgets.QLabel(self.gridLayoutWidget)
-            font = QtGui.QFont()
-            font.setFamily("맑은 고딕")
-            font.setPointSize(12)
-            font.setKerning(True)
-            label.setFont(font)
-            label.setObjectName(f"label_{i}")
-            label.setText("UnAssigned")
-            layout.addWidget(label)
-            self.labels.append(label)
-
-            button = QtWidgets.QPushButton(self.gridLayoutWidget)
-            button.setObjectName(f"pushButton_{i}")
-            button.setText("Assign Key")
-            layout.addWidget(button)
-            self.buttons.append(button)
-            button.clicked.connect(lambda _, idx=i: self.on_button_clicked(idx))  # 버튼 클릭 시 이벤트 연결
-
-            # 그리드 레이아웃에 추가 (4x3 기준)
-            row = i // 4  # 3열 기준으로 행 계산
-            col = i % 4   # 열 계산
-            self.gridLayout.addLayout(layout, row, col, 1, 1)
+        self.create_layout_and_widgets(12, 0)  # 0부터 시작하는 인덱스
 
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
@@ -128,6 +103,34 @@ class Ui_MainWindow(object):
 
         self.retranslateUi(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
+
+    def create_layout_and_widgets(self, ranges, addVal):
+        for i in range(ranges):  # 12개의 그룹 생성
+            layout = QtWidgets.QVBoxLayout()
+            layout.setObjectName(f"BindingGroup{i + addVal}")
+
+            label = QtWidgets.QLabel(self.gridLayoutWidget)
+            font = QtGui.QFont()
+            font.setFamily("맑은 고딕")
+            font.setPointSize(12)
+            font.setKerning(True)
+            label.setFont(font)
+            label.setObjectName(f"label_{i + addVal}")
+            label.setText("UnAssigned")
+            layout.addWidget(label)
+            self.labels.append(label)
+
+            button = QtWidgets.QPushButton(self.gridLayoutWidget)
+            button.setObjectName(f"pushButton_{i + addVal}")
+            button.setText("Assign Key")
+            layout.addWidget(button)
+            self.buttons.append(button)
+            button.clicked.connect(lambda _, idx=i + addVal: self.on_button_clicked(idx))  # 버튼 클릭 시 이벤트 연결
+
+            # 그리드 레이아웃에 추가 (4x3 기준)
+            row = i // 4  # 3열 기준으로 행 계산
+            col = i % 4   # 열 계산
+            self.gridLayout.addLayout(layout, row, col, 1, 1)
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
@@ -178,7 +181,7 @@ class Ui_MainWindow(object):
                 else:
                     keyname = str(key).upper()
 
-                print(key)
+                print(f"Key pressed: {keyname}")
 
                 # 중복된 특수키가 pressed_keys에 추가되지 않도록 처리
                 if keyname in pressed_keys:
@@ -188,17 +191,19 @@ class Ui_MainWindow(object):
 
                 # 특수키만 눌린 경우, 다른 키 입력을 기다림
                 if all(k in ["CTRL", "SHIFT", "ALT", "GUI"] for k in pressed_keys):
+                    print(f"Special keys pressed: {pressed_keys}. Waiting for additional key...")
                     return
 
                 # 키 이름과 KMK 코드 저장
+                combined_keys = "+".join(sorted(pressed_keys))  # 조합된 키 이름 생성
                 kmk_code = KMK_KEYCODES.get(keyname.split("+")[-1], None)  # 마지막 키만 KMK 코드로 매핑
                 if kmk_code:
-                    keynames[index] = "+".join(sorted(pressed_keys))  # 조합된 키 이름 저장
+                    keynames[index] = combined_keys  # 조합된 키 이름 저장
                     keymaps[index] = kmk_code
 
                     # UI 업데이트
                     self.labels[index].setText(keynames[index])
-                    print(f"Key assigned: {keynames[index]} -> {kmk_code}")
+                    print(f"Key assigned: {combined_keys} -> {kmk_code}")
                     return False  # 리스너 종료
             except Exception as e:
                 print(f"Error: {e}")
