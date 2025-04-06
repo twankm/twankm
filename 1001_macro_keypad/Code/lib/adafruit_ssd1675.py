@@ -26,7 +26,15 @@ Implementation Notes
 
 """
 
-import displayio
+from epaperdisplay import EPaperDisplay
+
+try:
+    import typing
+
+    from fourwire import FourWire
+except ImportError:
+    pass
+
 
 __version__ = "0.0.0+auto.0"
 __repo__ = "https://github.com/adafruit/Adafruit_CircuitPython_SSD1675.git"
@@ -53,10 +61,10 @@ _STOP_SEQUENCE = b"\x10\x01\x01"  # Enter deep sleep
 
 
 # pylint: disable=too-few-public-methods
-class SSD1675(displayio.EPaperDisplay):
+class SSD1675(EPaperDisplay):
     """SSD1675 driver"""
 
-    def __init__(self, bus: displayio.FourWire, **kwargs) -> None:
+    def __init__(self, bus: FourWire, **kwargs) -> None:
         stop_sequence = _STOP_SEQUENCE
         try:
             bus.reset()
@@ -76,5 +84,5 @@ class SSD1675(displayio.EPaperDisplay):
             write_black_ram_command=0x24,
             refresh_display_command=0x20,
             refresh_time=2.2,
-            address_little_endian=True
+            address_little_endian=True,
         )
