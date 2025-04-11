@@ -2,25 +2,24 @@ print("Starting")
 
 import board
 
-
 from kmk.kmk_keyboard import KMKKeyboard
 from kmk.keys import KC
-from kmk.keys import ALL_ALPHAS, ALL_NUMBERS
 from kmk.scanners import DiodeOrientation
 from kmk.modules.layers import Layers
 from kmk.modules.encoder import EncoderHandler
+from kmk.modules.mouse_keys import MouseKeys
+from kmk.modules.macros import Macros, Press, Release, Tap, Delay
 
 
 import time
 import busio
-from adafruit_display_text import label
-from adafruit_display_shapes.circle import Circle
-from adafruit_display_shapes.rect import Rect
-from adafruit_displayio_layout.layouts.grid_layout import GridLayout
+from lib.adafruit_display_text import label
+from lib.adafruit_displayio_layout.layouts.grid_layout import GridLayout
 import terminalio
 import displayio
-import adafruit_ssd1675
-from adafruit_epd.epd import Adafruit_EPD
+import lib.adafruit_ssd1675 as adafruit_ssd1675
+import keymaps
+import gc
 
 
 keyboard = KMKKeyboard()
@@ -28,6 +27,9 @@ keyboard.debug_enabled = True
 
 layers = Layers()
 encoder_handler = EncoderHandler()
+mouseKeys = MouseKeys()
+macros = Macros()
+
 
 keyboard.SCL=board.GP11
 keyboard.SDA=board.GP10
@@ -36,23 +38,14 @@ keyboard.RES= board.GP12
 keyboard.row_pins = (board.GP0,board.GP1,board.GP2, board.GP3)
 keyboard.col_pins = (board.GP6,board.GP7,board.GP5, board.GP4)
 keyboard.diode_orientation = DiodeOrientation.ROW2COL
-keyboard.modules = [encoder_handler]
 encoder_handler.pins = (
     (board.GP10, board.GP9, board.GP8, False),
     (board.GP15, board.GP14, board.GP13, False),)
 
-# keyboard.keymap = [
-#     [KC.LCTL(KC.A), KC.PSCREEN, KC.N1, KC.P2,
-#      KC.W, KC.G, KC.H, KC.R,
-#      KC.K, KC.L, KC.Z, KC.Y,
-#      KC.LCTL(KC.LSFT(KC.Z)), KC.LCTL(KC.Z) , KC.NO, KC.NO]
-# ]
-keyboard.keymap = [
-    [KC.LCTL(KC.A), KC.PSCREEN, KC.N1, KC.P2, KC.W, KC.G, KC.H, KC.R, KC.K, KC.L, KC.Z, KC.Y, KC.LCTL(KC.LSFT(KC.Z)), KC.LCTL(KC.Z) , KC.NO, KC.NO]
-]
+keyboard.keymap = keymaps.maps
+current_layer = 0
 
-encoder_handler.map = [( (KC.LEFT, KC.RIGHT, KC.N1), (KC.PGUP, KC.PGDOWN, KC.N2),),]
-
+total_layers = len(keyboard.keymap)
 
 
 displayio.release_displays()
@@ -67,11 +60,10 @@ epd_busy = board.GP21
 display_bus = displayio.FourWire(
     spi, command=epd_dc, chip_select=epd_cs, reset=epd_reset, baudrate=1000000
 )
-time.sleep(1)
 
 display = adafruit_ssd1675.SSD1675(
-    display_bus, width=250, height=122, rotation=270, busy_pin=epd_busy
-)
+    display_bus, width=250, height=122,  busy_pin=epd_busy, rotation = 270, seconds_per_frame=1)
+
 
 
 g = displayio.Group()
@@ -94,38 +86,128 @@ txtGrp = displayio.Group()
 
 
 grid_size = (3, 4)
-layout = GridLayout(x = 1, y = 1, width = 180, height = 120, grid_size = grid_size, cell_padding = 4, v_divider_line_cols=(1,2,3,4,5), h_divider_line_rows=(1,2,3,4), divider_line_color=0x0)
-_labels = []
-address = 0
-print(keyboard.active_layers[0])
-
-for row in range(0, grid_size[0]):
-    for col in range(0 , grid_size[1]):
-        char = ""
-        if 30 > keyboard.keymap[0][address].code >= 4:
-            char = ALL_ALPHAS[keyboard.keymap[0][address].code-4]
-        elif 40 > keyboard.keymap[0][address].code >= 30:
-            char = ALL_NUMBERS[keyboard.keymap[0][address].code - 30]
-        print(char)
-        _labels.append(label.Label(terminalio.FONT, color= 0x0,scale=1, x=0, y=0, text = char, background_color=None))
-        layout.add_content(_labels[address], grid_position=(col, row), cell_size= (1,1))
-        address += 1
-        
+layout = GridLayout(x = 0, y = 0, width = 180, height = 120, grid_size = grid_size, cell_padding = 6, v_divider_line_cols=(0,1,2,3,4), h_divider_line_rows=(0,1,2,3), divider_line_color=0x0)
 
 address = 0
-keys = keyboard.keymap[0]
 
-key_names = [str(k) for k in keys]
-print(key_names)
-g.append(layout)
+def setText(_label):
+    if len(_label.text) >= 4:
+        _label.scale = 1
+
+    if _label.bounding_box[2] > 10:
+        _label.text = wrap_text(_label.text, 10)
+    return _label
+
+def wrap_text(text, max_length):
+    return '\n'.join([text[i:i+max_length] for i in range(0, len(text), max_length)])
+
+def assignKeyOnDisplay(gridSize, keyMap, _layout, address=0, _layer = 0):
+    if _layout not in g:
+        for row in range(0, gridSize[0]):
+            for col in range(0, gridSize[1]):
+                char = keyMap[_layer][address]
+                lbl = label.Label(terminalio.FONT, color=0x0,scale = 2, x=0, y=0, text=char, background_color=None)
+                setText(lbl)
+                # _labels.append(lbl)
+                _layout.add_content(lbl, grid_position=(col, row), cell_size=(1, 1))
+                address += 1
+        g.append(_layout)
+
+    else:
+        for row in range(0, gridSize[0]):
+            for col in range(0, gridSize[1]):
+                char = keyMap[_layer][address]
+                lbl = label.Label(terminalio.FONT, color=0x0,scale = 2, x=0, y=0, text=char, background_color=None)
+                lbl = setText(lbl)
+                # _labels[address] = lbl
+                _layout.get_cell((col, row)).content = lbl
+                print(_layout.get_cell((col, row)).content.text)
+                address += 1
+                gc.collect()
+
+    gc.collect()
+
+    
+
+    
+assignKeyOnDisplay(grid_size, keymaps.layers, layout)
+address = 0
+
+
+
+grid_size = (1, 2)
+layout1 = GridLayout(x = 120, y = 90, width = 60, height = 50, grid_size = grid_size, cell_padding = 6, v_divider_line_cols=(0,1,2), h_divider_line_rows=(0,1), divider_line_color=0x0)
+assignKeyOnDisplay(grid_size, keymaps.layers, layout1, 12)
 
 
 display.auto_refresh = False
-display.show(g)
-
+display.root_group = g
 display.refresh()
+# displayio.release_displays()
 
-print("refreshed")
+    
+
+def rotate_encoder(add=bool):
+    while display.busy:
+        time.sleep(1)
+        print("busy")   
+    def generator(keyboard):
+        # global current_layer
+        current_layer = keyboard.active_layers[0]
+        if add:
+            if current_layer >= total_layers - 1:
+                return
+            current_layer = (current_layer + 1)
+        else:
+            if current_layer == 0:
+                return
+            current_layer = (current_layer - 1)
+        keyboard.active_layers = [current_layer]
+        print(current_layer)
+        time.sleep(0.1)
+    
+        assignKeyOnDisplay((3,4), keymaps.layers, layout, address=0, _layer = current_layer)
+        assignKeyOnDisplay((1,2), keymaps.layers, layout1, address=12, _layer = current_layer)
+        # g.remove(layout)
+        # newLayout = GridLayout(x = 0, y = 0, width = 180, height = 120, grid_size = grid_size, cell_padding = 6, v_divider_line_cols=(0,1,2,3,4), h_divider_line_rows=(0,1,2,3), divider_line_color=0x0)
+        # for row in range(0, 3):
+        #     for col in range(0, 4):
+        #         char = keymaps.layers[current_layer][address]
+        #         scal = int(2)
+        #         if len(char) >= 4:
+        #             scal = 1
+
+        #         lbl = label.Label(terminalio.FONT, color=0x0, scale=scal, x=0, y=0, text=char, background_color=None)
+        #         if lbl.bounding_box[2] > 10:
+        #             lbl.text = wrap_text(lbl.text, 10)
+        #         _labels[address] = lbl
+        #         newLayout.add_content(_labels[address], grid_position=(col, row), cell_size=(1, 1))
+        #         address += 1
+        # g.append(newLayout)
+
+    
+        display.refresh()
+    return generator
+
+
+
+
+ROTARY_LEFT = KC.MACRO(
+    rotate_encoder(False),
+    # display.refresh(),
+)
+
+ROTARY_RIGHT = KC.MACRO(
+    rotate_encoder(True),
+    # display.refresh(),
+)
+
+encoder_handler.map = [(( ROTARY_LEFT, ROTARY_RIGHT, KC.N1), (KC.MW_UP, KC.MW_DOWN, KC.N2),),(( ROTARY_LEFT, ROTARY_RIGHT, KC.N1), (KC.MW_UP, KC.MW_DOWN, KC.N2),),(( ROTARY_LEFT, ROTARY_RIGHT, KC.N1), (KC.MW_UP, KC.MW_DOWN, KC.N2),),(( ROTARY_LEFT, ROTARY_RIGHT, KC.N1), (KC.MW_UP, KC.MW_DOWN, KC.N2),),(( ROTARY_LEFT, ROTARY_RIGHT, KC.N1), (KC.MW_UP, KC.MW_DOWN, KC.N2),),(( ROTARY_LEFT, ROTARY_RIGHT, KC.N1), (KC.MW_UP, KC.MW_DOWN, KC.N2),),]
+
+
+
+keyboard.modules = [layers, encoder_handler, mouseKeys, macros]
+
 
 if __name__ == '__main__':
     keyboard.go()
