@@ -15,6 +15,8 @@ import time
 import busio
 from lib.adafruit_display_text import label
 from lib.adafruit_displayio_layout.layouts.grid_layout import GridLayout
+from lib.adafruit_display_text import label
+from lib.adafruit_displayio_layout.layouts.grid_layout import GridLayout
 import terminalio
 import displayio
 import lib.adafruit_ssd1675 as adafruit_ssd1675
@@ -139,8 +141,12 @@ grid_size = (1, 2)
 layout1 = GridLayout(x = 120, y = 90, width = 60, height = 50, grid_size = grid_size, cell_padding = 6, v_divider_line_cols=(0,1,2), h_divider_line_rows=(0,1), divider_line_color=0x0)
 assignKeyOnDisplay(grid_size, keymaps.layers, layout1, 12)
 
-
+grid_size = (1, 2)
+layout1 = GridLayout(x = 120, y = 90, width = 60, height = 50, grid_size = grid_size, cell_padding = 6, v_divider_line_cols=(0,1,2), h_divider_line_rows=(0,1), divider_line_color=0x0)
+assignKeyOnDisplay(grid_size, keymaps.layers, layout1, 12)
+g.append(layout1)
 display.auto_refresh = False
+display.root_group = g
 display.root_group = g
 display.refresh()
 # displayio.release_displays()
