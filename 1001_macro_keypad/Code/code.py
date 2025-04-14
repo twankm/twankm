@@ -83,18 +83,23 @@ bg_sprite = displayio.TileGrid(color_bitmap, pixel_shader=color_pallette)
 g.append(bg_sprite)
 
 cnt = 0
-text_area = []
+# text_area = []
 txtGrp = displayio.Group()
 
 
 grid_size = (3, 4)
 layout = GridLayout(x = 0, y = 0, width = 180, height = 120, grid_size = grid_size, cell_padding = 6, v_divider_line_cols=(0,1,2,3,4), h_divider_line_rows=(0,1,2,3), divider_line_color=0x0)
-
+layerLabel = label.Label(terminalio.FONT, color=0x0,scale = 2, x=0, y=0, text="Layer: 0", background_color=None)
+layerLabel.x = 7
+layerLabel.y = 108
+g.append(layerLabel)
 address = 0
 
 def setText(_label):
     if len(_label.text) >= 4:
         _label.scale = 1
+    else:
+        _label.scale = 2
 
     if _label.bounding_box[2] > 10:
         _label.text = wrap_text(_label.text, 10)
@@ -119,13 +124,12 @@ def assignKeyOnDisplay(gridSize, keyMap, _layout, address=0, _layer = 0):
         for row in range(0, gridSize[0]):
             for col in range(0, gridSize[1]):
                 char = keyMap[_layer][address]
-                lbl = label.Label(terminalio.FONT, color=0x0,scale = 2, x=0, y=0, text=char, background_color=None)
-                lbl = setText(lbl)
-                # _labels[address] = lbl
-                _layout.get_cell((col, row)).content = lbl
-                print(_layout.get_cell((col, row)).content.text)
+                cell = _layout.get_cell((col, row))
+                cell.text = char
+                setText(cell)
                 address += 1
                 gc.collect()
+        layerLabel.text = "Layer: " + str(_layer)
 
     gc.collect()
 
@@ -141,10 +145,7 @@ grid_size = (1, 2)
 layout1 = GridLayout(x = 120, y = 90, width = 60, height = 50, grid_size = grid_size, cell_padding = 6, v_divider_line_cols=(0,1,2), h_divider_line_rows=(0,1), divider_line_color=0x0)
 assignKeyOnDisplay(grid_size, keymaps.layers, layout1, 12)
 
-grid_size = (1, 2)
-layout1 = GridLayout(x = 120, y = 90, width = 60, height = 50, grid_size = grid_size, cell_padding = 6, v_divider_line_cols=(0,1,2), h_divider_line_rows=(0,1), divider_line_color=0x0)
-assignKeyOnDisplay(grid_size, keymaps.layers, layout1, 12)
-g.append(layout1)
+
 display.auto_refresh = False
 display.root_group = g
 display.root_group = g
@@ -154,10 +155,9 @@ display.refresh()
     
 
 def rotate_encoder(add=bool):
-    while display.busy:
-        time.sleep(1)
-        print("busy")   
+    
     def generator(keyboard):
+        
         # global current_layer
         current_layer = keyboard.active_layers[0]
         if add:
@@ -174,38 +174,23 @@ def rotate_encoder(add=bool):
     
         assignKeyOnDisplay((3,4), keymaps.layers, layout, address=0, _layer = current_layer)
         assignKeyOnDisplay((1,2), keymaps.layers, layout1, address=12, _layer = current_layer)
-        # g.remove(layout)
-        # newLayout = GridLayout(x = 0, y = 0, width = 180, height = 120, grid_size = grid_size, cell_padding = 6, v_divider_line_cols=(0,1,2,3,4), h_divider_line_rows=(0,1,2,3), divider_line_color=0x0)
-        # for row in range(0, 3):
-        #     for col in range(0, 4):
-        #         char = keymaps.layers[current_layer][address]
-        #         scal = int(2)
-        #         if len(char) >= 4:
-        #             scal = 1
-
-        #         lbl = label.Label(terminalio.FONT, color=0x0, scale=scal, x=0, y=0, text=char, background_color=None)
-        #         if lbl.bounding_box[2] > 10:
-        #             lbl.text = wrap_text(lbl.text, 10)
-        #         _labels[address] = lbl
-        #         newLayout.add_content(_labels[address], grid_position=(col, row), cell_size=(1, 1))
-        #         address += 1
-        # g.append(newLayout)
 
     
-        display.refresh()
+        if display.auto_refresh is False:
+            display.refresh()
     return generator
 
 
 
 
 ROTARY_LEFT = KC.MACRO(
+    gc.collect(),
     rotate_encoder(False),
-    # display.refresh(),
 )
 
 ROTARY_RIGHT = KC.MACRO(
+    gc.collect(),
     rotate_encoder(True),
-    # display.refresh(),
 )
 
 encoder_handler.map = [(( ROTARY_LEFT, ROTARY_RIGHT, KC.N1), (KC.MW_UP, KC.MW_DOWN, KC.N2),),(( ROTARY_LEFT, ROTARY_RIGHT, KC.N1), (KC.MW_UP, KC.MW_DOWN, KC.N2),),(( ROTARY_LEFT, ROTARY_RIGHT, KC.N1), (KC.MW_UP, KC.MW_DOWN, KC.N2),),(( ROTARY_LEFT, ROTARY_RIGHT, KC.N1), (KC.MW_UP, KC.MW_DOWN, KC.N2),),(( ROTARY_LEFT, ROTARY_RIGHT, KC.N1), (KC.MW_UP, KC.MW_DOWN, KC.N2),),(( ROTARY_LEFT, ROTARY_RIGHT, KC.N1), (KC.MW_UP, KC.MW_DOWN, KC.N2),),]
@@ -214,6 +199,6 @@ encoder_handler.map = [(( ROTARY_LEFT, ROTARY_RIGHT, KC.N1), (KC.MW_UP, KC.MW_DO
 
 keyboard.modules = [layers, encoder_handler, mouseKeys, macros]
 
-
+print(keyboard.active_layers[0])
 if __name__ == '__main__':
     keyboard.go()

@@ -162,6 +162,12 @@ class Ui_MainWindow(object):
             self.buttons.append(button)
             button.clicked.connect(lambda _, idx=i + addVal: self.on_button_clicked(idx))  # 버튼 클릭 시 이벤트 연결
 
+            macroButton = QtWidgets.QPushButton(self.gridLayoutWidget)
+            macroButton.setObjectName(f"macroButton_{i + addVal}")
+            macroButton.setText("Assign Macro")
+            layout.addWidget(macroButton)
+            macroButton.clicked.connect(lambda _, idx=i + addVal: self.on_macro_button_clicked(idx))  # 매크로 버튼 클릭 시 이벤트 연결
+
             # 그리드 레이아웃에 추가 (4x3 기준)
             row = i // 4  # 3열 기준으로 행 계산
             col = i % 4   # 열 계산
@@ -274,8 +280,8 @@ class Ui_MainWindow(object):
 
                 # 키 이름과 KMK 코드 저장
                 combined_keys = "+".join(sorted(pressed_keys))  # 조합된 키 이름 생성
-                kmk_code = KMK_KEYCODES.get(keyname.split("+")[-1], None)  # 마지막 키만 KMK 코드로 매핑
-                if kmk_code:
+                # kmk_code = KMK_KEYCODES.get(keyname.split("+")[-1], None)  # 마지막 키만 KMK 코드로 매핑
+                if keyname:
                     self.layers[self.current_layer][index] = combined_keys  # 조합된 키 이름 저장
                     # keymaps[index] = kmk_code
 
@@ -306,6 +312,22 @@ class Ui_MainWindow(object):
         # 키 입력 리스너 시작
         with Listener(on_press=on_press, on_release=on_release) as listener:
             listener.join()
+
+    def on_macro_button_clicked(self, index):
+        key, ok = QtWidgets.QInputDialog.getText(None, "Assign Macro", "Seperate steps by comma. No space allowed.\nType ctrl+, alt+, shift+, sl+(Switch Layer Toggle)\nif you want to use the hot key.\n\nEnter macro:")
+        if ok and key:
+            # 매크로 키 입력 처리
+            key= key.upper()
+            if len(self.layers[self.current_layer]) <= index:
+                self.layers[self.current_layer].extend(["UnAssigned"] * (index - len(self.layers[self.current_layer]) + 1))
+
+            # 데이터 업데이트
+            self.layers[self.current_layer][index] = "[MACRO] " + key
+            print(f"Updated layer {self.current_layer}: {self.layers[self.current_layer]}")
+
+            # UI 업데이트
+            self.labels[index].setText(key)
+            print(f"Macro assigned: {key}")
 
     def on_print_clicked(self):
         """키맵을 KMK 코드로 변환하여 파일에 저장하는 함수"""
