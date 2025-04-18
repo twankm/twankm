@@ -15,8 +15,6 @@ import time
 import busio
 from lib.adafruit_display_text import label
 from lib.adafruit_displayio_layout.layouts.grid_layout import GridLayout
-from lib.adafruit_display_text import label
-from lib.adafruit_displayio_layout.layouts.grid_layout import GridLayout
 import terminalio
 import displayio
 import lib.adafruit_ssd1675 as adafruit_ssd1675
@@ -148,7 +146,6 @@ assignKeyOnDisplay(grid_size, keymaps.layers, layout1, 12)
 
 display.auto_refresh = False
 display.root_group = g
-display.root_group = g
 display.refresh()
 # displayio.release_displays()
 
@@ -197,7 +194,7 @@ encoder_handler.map = [(( ROTARY_LEFT, ROTARY_RIGHT, KC.N1), (KC.MW_UP, KC.MW_DO
 
 
 
-keyboard.modules = [layers, encoder_handler, mouseKeys, macros]
+keyboard.modules = [layers, encoder_handler, mouseKeys, macros, keymaps.keyMacros, keymaps.keyLayers]
 
 print(keyboard.active_layers[0])
 if __name__ == '__main__':
