@@ -16,10 +16,10 @@
         "SPACE"
     ],
     [
-        "CTRL+Q",
-        "CTRL+W",
-        "CTRL+E",
-        "CTRL+R",
+        "<49>+CTRL",
+        "<50>+CTRL",
+        "<51>+CTRL",
+        "<52>+CTRL",
         "Q",
         "W",
         "E",

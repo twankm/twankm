@@ -6,9 +6,8 @@ except ImportError:
 from collections import namedtuple
 from keypad import Event as KeyEvent
 
-from kmk.consts import UnicodeMode
 from kmk.hid import BLEHID, USBHID, AbstractHID, HIDModes
-from kmk.keys import KC, Key
+from kmk.keys import KC, Axis, Key
 from kmk.modules import Module
 from kmk.scanners.keypad import MatrixScanner
 from kmk.scheduler import Task, cancel_task, create_task, get_due_task
@@ -35,49 +34,44 @@ class Sandbox:
 
 
 class KMKKeyboard:
-    #####
-    # User-configurable
-    keymap = []
-    coord_mapping = None
+    def __init__(self) -> None:
+        #####
+        # User-configurable
+        self.keymap = []
+        self.coord_mapping = None
 
-    row_pins = None
-    col_pins = None
-    diode_orientation = None
-    matrix = None
+        self.row_pins = None
+        self.col_pins = None
+        self.diode_orientation = None
+        self.matrix = None
 
-    unicode_mode = UnicodeMode.NOOP
+        self.modules = []
+        self.extensions = []
+        self.sandbox = Sandbox()
 
-    modules = []
-    extensions = []
-    sandbox = Sandbox()
+        #####
+        # Internal State
+        self.keys_pressed = set()
+        self._coordkeys_pressed = {}
+        self.implicit_modifier = None
+        self.hid_type = HIDModes.USB
+        self.secondary_hid_type = None
+        self._hid_helper = None
+        self._hid_send_enabled = False
+        self.hid_pending = False
+        self.matrix_update = None
+        self.secondary_matrix_update = None
+        self.matrix_update_queue = []
+        self._trigger_powersave_enable = False
+        self._trigger_powersave_disable = False
+        self._go_args = None
+        self._resume_buffer = []
+        self._resume_buffer_x = []
 
-    #####
-    # Internal State
-    keys_pressed = set()
-    axes = set()
-    _coordkeys_pressed = {}
-    hid_type = HIDModes.USB
-    secondary_hid_type = None
-    _hid_helper = None
-    _hid_send_enabled = False
-    hid_pending = False
-    matrix_update = None
-    secondary_matrix_update = None
-    matrix_update_queue = []
-    _trigger_powersave_enable = False
-    _trigger_powersave_disable = False
-    i2c_deinit_count = 0
-    _go_args = None
-    _processing_timeouts = False
-    _resume_buffer = []
-    _resume_buffer_x = []
-
-    # this should almost always be PREpended to, replaces
-    # former use of reversed_active_layers which had pointless
-    # overhead (the underlying list was never used anyway)
-    active_layers = [0]
-
-    _timeouts = {}
+        # this should almost always be PREpended to, replaces
+        # former use of reversed_active_layers which had pointless
+        # overhead (the underlying list was never used anyway)
+        self.active_layers = [0]
 
     def __repr__(self) -> str:
         return self.__class__.__name__
@@ -89,10 +83,8 @@ class KMKKeyboard:
         if debug.enabled:
             if self.keys_pressed:
                 debug('keys_pressed=', self.keys_pressed)
-            if self.axes:
-                debug('axes=', self.axes)
 
-        self._hid_helper.create_report(self.keys_pressed, self.axes)
+        self._hid_helper.create_report(self.keys_pressed)
         try:
             self._hid_helper.send()
         except Exception as err:
@@ -100,8 +92,9 @@ class KMKKeyboard:
 
         self.hid_pending = False
 
-        for axis in self.axes:
-            axis.move(self, 0)
+        for key in self.keys_pressed:
+            if isinstance(key, Axis):
+                key.move(self, 0)
 
     def _handle_matrix_report(self, kevent: KeyEvent) -> None:
         if kevent is not None:
@@ -113,33 +106,28 @@ class KMKKeyboard:
         except ValueError:
             if debug.enabled:
                 debug('no such int_coord: ', int_coord)
-
             return None
 
+        key = None
         for layer in self.active_layers:
             try:
                 key = self.keymap[layer][idx]
             except IndexError:
-                key = None
                 if debug.enabled:
                     debug('keymap IndexError: idx=', idx, ' layer=', layer)
 
-            if not key or key == KC.TRNS:
-                continue
+            if key and key != KC.TRNS:
+                break
 
-            return key
+        return key
 
     def _on_matrix_changed(self, kevent: KeyEvent) -> None:
         int_coord = kevent.key_number
         is_pressed = kevent.pressed
-
         key = None
+
         if not is_pressed:
-            try:
-                key = self._coordkeys_pressed[int_coord]
-            except KeyError:
-                if debug.enabled:
-                    debug('release w/o press: ', int_coord)
+            key = self._coordkeys_pressed.pop(int_coord, None)
 
         if key is None:
             key = self._find_key_in_map(int_coord)
@@ -174,7 +162,10 @@ class KMKKeyboard:
 
             # Handle any unaccounted-for layer shifts by looking up the key resolution again.
             if ksf.int_coord is not None:
-                key = self._find_key_in_map(ksf.int_coord)
+                if ksf.is_pressed:
+                    key = self._find_key_in_map(ksf.int_coord)
+                else:
+                    key = self._coordkeys_pressed.pop(ksf.int_coord, key)
 
             # Resume the processing of the key event and update the HID report
             # when applicable.
@@ -192,14 +183,6 @@ class KMKKeyboard:
                 buffer, self._resume_buffer = self._resume_buffer, buffer
 
         self._resume_buffer_x = buffer
-
-    @property
-    def debug_enabled(self) -> bool:
-        return debug.enabled
-
-    @debug_enabled.setter
-    def debug_enabled(self, enabled: bool):
-        debug.enabled = enabled
 
     def pre_process_key(
         self,
@@ -219,12 +202,7 @@ class KMKKeyboard:
         if int_coord is not None:
             if is_pressed:
                 self._coordkeys_pressed[int_coord] = key
-            else:
-                try:
-                    del self._coordkeys_pressed[int_coord]
-                except KeyError:
-                    if debug.enabled:
-                        debug('release w/o press:', int_coord)
+
             if debug.enabled:
                 debug('coordkeys_pressed=', self._coordkeys_pressed)
 
@@ -254,11 +232,9 @@ class KMKKeyboard:
         self._resume_buffer.append(ksf)
 
     def remove_key(self, keycode: Key) -> None:
-        self.keys_pressed.discard(keycode)
         self.process_key(keycode, False)
 
     def add_key(self, keycode: Key) -> None:
-        self.keys_pressed.add(keycode)
         self.process_key(keycode, True)
 
     def tap_key(self, keycode: Key) -> None:
@@ -275,21 +251,6 @@ class KMKKeyboard:
     def _process_timeouts(self) -> None:
         for task in get_due_task():
             task()
-
-    def _init_sanity_check(self) -> None:
-        '''
-        Ensure the provided configuration is *probably* bootable
-        '''
-        assert self.keymap, 'must define a keymap with at least one row'
-        assert (
-            self.hid_type in HIDModes.ALL_MODES
-        ), 'hid_type must be a value from kmk.consts.HIDModes'
-        if not self.matrix:
-            assert self.row_pins, 'no GPIO pins defined for matrix rows'
-            assert self.col_pins, 'no GPIO pins defined for matrix columns'
-            assert (
-                self.diode_orientation is not None
-            ), 'diode orientation must be defined'
 
     def _init_coord_mapping(self) -> None:
         '''
@@ -325,8 +286,11 @@ class KMKKeyboard:
             debug('hid=', self._hid_helper)
 
     def _deinit_hid(self) -> None:
-        self._hid_helper.clear_all()
-        self._hid_helper.send()
+        try:
+            self._hid_helper.create_report({})
+            self._hid_helper.send()
+        except Exception as e:
+            debug_error(self, '_deinit_hid', e)
 
     def _init_matrix(self) -> None:
         if self.matrix is None:
@@ -372,7 +336,7 @@ class KMKKeyboard:
                 debug_error(ext, 'during_bootup', err)
                 self.extensions[idx] = None
 
-        self.modules[:] = [_ for _ in self.modules if _]
+        self.extensions[:] = [_ for _ in self.extensions if _]
 
         if debug.enabled:
             debug('extensions=', [_.__class__.__name__ for _ in self.extensions])
@@ -469,14 +433,28 @@ class KMKKeyboard:
                 debug_error(ext, 'deinit', err)
 
     def go(self, hid_type=HIDModes.USB, secondary_hid_type=None, **kwargs) -> None:
-        self._init(hid_type=hid_type, secondary_hid_type=secondary_hid_type, **kwargs)
         try:
+            self._init(
+                hid_type=hid_type,
+                secondary_hid_type=secondary_hid_type,
+                **kwargs,
+            )
             while True:
                 self._main_loop()
+        except Exception as err:
+            import traceback
+
+            traceback.print_exception(err)
         finally:
-            debug('Unexpected error: cleaning up')
+            debug('cleaning up...')
             self._deinit_hid()
             self.deinit()
+            debug('...done')
+
+            if not debug.enabled:
+                import supervisor
+
+                supervisor.reload()
 
     def _init(
         self,
@@ -490,7 +468,6 @@ class KMKKeyboard:
 
         if debug.enabled:
             debug('Initialising ', self)
-            debug('unicode_mode=', self.unicode_mode)
 
         self._init_hid()
         self._init_matrix()

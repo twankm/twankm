@@ -6,8 +6,8 @@
     },
     "circuitpython.board.version": "9.2.6",
     "python.analysis.extraPaths": [
-        "c:\\Users\\twank\\.vscode\\extensions\\wmerkens.vscode-circuitpython-v2-0.3.3\\boards\\0x239A\\0x80F4",
-        "c:\\Users\\twank\\.vscode\\extensions\\wmerkens.vscode-circuitpython-v2-0.3.3\\stubs",
+        "c:\\Users\\DEV-KIMTAEWAN\\.vscode\\extensions\\wmerkens.vscode-circuitpython-v2-0.3.3\\boards\\0x239A\\0x80F4",
+        "c:\\Users\\DEV-KIMTAEWAN\\.vscode\\extensions\\wmerkens.vscode-circuitpython-v2-0.3.3\\stubs",
         "c:\\Users\\twank\\AppData\\Roaming\\Code\\User\\globalStorage\\wmerkens.vscode-circuitpython-v2\\bundle\\20250319\\adafruit-circuitpython-bundle-py-20250319\\lib"
     ],
     "circuitpython.board.vid": "0x239A",

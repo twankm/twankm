@@ -1,20 +1,21 @@
-from kmk.keys import KC, make_argumented_key
-from kmk.modules.holdtap import ActivationType, HoldTap, HoldTapKeyMeta
+from kmk.keys import Key, make_argumented_key
+from kmk.modules.holdtap import ActivationType, HoldTap, HoldTapKey
 
 
-class TapDanceKeyMeta:
-    def __init__(self, *keys, tap_time=None):
+class TapDanceKey(Key):
+    def __init__(self, *keys, tap_time=None, **kwargs):
         '''
         Any key in the tapdance sequence that is not already a holdtap
         key gets converted to a holdtap key with identical tap and hold
-        meta attributes.
+        attributes.
         '''
+        super().__init__(**kwargs)
         self.tap_time = tap_time
         self.keys = []
 
         for key in keys:
-            if not isinstance(key.meta, HoldTapKeyMeta):
-                ht_key = KC.HT(
+            if not isinstance(key, HoldTapKey):
+                ht_key = HoldTapKey(
                     tap=key,
                     hold=key,
                     prefer_hold=True,
@@ -29,10 +30,10 @@ class TapDanceKeyMeta:
 
 class TapDance(HoldTap):
     def __init__(self):
-        super().__init__()
+        super().__init__(_make_key=False)
         make_argumented_key(
-            validator=TapDanceKeyMeta,
             names=('TD',),
+            constructor=TapDanceKey,
             on_press=self.td_pressed,
             on_release=self.td_released,
         )
@@ -40,7 +41,7 @@ class TapDance(HoldTap):
         self.td_counts = {}
 
     def process_key(self, keyboard, key, is_pressed, int_coord):
-        if isinstance(key.meta, TapDanceKeyMeta):
+        if isinstance(key, TapDanceKey):
             if key in self.td_counts:
                 return key
 
@@ -56,7 +57,8 @@ class TapDance(HoldTap):
                 del self.key_states[_key]
                 del self.td_counts[state.tap_dance]
 
-        key = super().process_key(keyboard, key, is_pressed, int_coord)
+        if key:
+            key = super().process_key(keyboard, key, is_pressed, int_coord)
 
         return key
 
@@ -64,14 +66,14 @@ class TapDance(HoldTap):
         # active tap dance
         if key in self.td_counts:
             count = self.td_counts[key]
-            kc = key.meta.keys[count]
+            kc = key.keys[count]
             keyboard.cancel_timeout(self.key_states[kc].timeout_key)
 
             count += 1
 
             # Tap dance reached the end of the list: send last tap in sequence
             # and start from the beginning.
-            if count >= len(key.meta.keys):
+            if count >= len(key.keys):
                 self.key_states[kc].activated = ActivationType.RELEASED
                 self.on_tap_time_expired(kc, keyboard)
                 count = 0
@@ -82,7 +84,7 @@ class TapDance(HoldTap):
         else:
             count = 0
 
-        current_key = key.meta.keys[count]
+        current_key = key.keys[count]
 
         self.ht_pressed(current_key, keyboard, *args, **kwargs)
         self.td_counts[key] = count
@@ -92,10 +94,7 @@ class TapDance(HoldTap):
         self.key_states[current_key].tap_dance = key
 
     def td_released(self, key, keyboard, *args, **kwargs):
-        try:
-            kc = key.meta.keys[self.td_counts[key]]
-        except KeyError:
-            return
+        kc = key.keys[self.td_counts[key]]
         state = self.key_states[kc]
         if state.activated == ActivationType.HOLD_TIMEOUT:
             # release hold

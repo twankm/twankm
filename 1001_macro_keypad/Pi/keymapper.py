@@ -3,6 +3,53 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 from pynput.keyboard import Listener, Key, KeyCode
 import json
 import os
+KMK_KEYCODES = {
+    "A": 0x04,
+    "B": 0x05,
+    "C": 0x06,
+    "D": 0x07,
+    "E": 0x08,
+    "F": 0x09,
+    "G": 0x0A,
+    "H": 0x0B,
+    "I": 0x0C,
+    "J": 0x0D,
+    "K": 0x0E,
+    "L": 0x0F,
+    "M": 0x10,
+    "N": 0x11,
+    "O": 0x12,
+    "P": 0x13,
+    "Q": 0x14,
+    "R": 0x15,
+    "S": 0x16,
+    "T": 0x17,
+    "U": 0x18,
+    "V": 0x19,
+    "W": 0x1A,
+    "X": 0x1B,
+    "Y": 0x1C,
+    "Z": 0x1D,
+    "1": 0x1E,
+    "2": 0x1F,
+    "3": 0x20,
+    "4": 0x21,
+    "5": 0x22,
+    "6": 0x23,
+    "7": 0x24,
+    "8": 0x25,
+    "9": 0x26,
+    "0": 0x27,
+    "ENTER": 0x28,
+    "ESC": 0x29,
+    "BACKSPACE": 0x2A,
+    "TAB": 0x2B,
+    "SPACE": 0x2C,
+    "CTRL": 0xE0,
+    "SHIFT": 0xE1,
+    "ALT": 0xE2,
+    "GUI": 0xE3,
+}
 
 
 class Ui_MainWindow(object):
@@ -280,8 +327,8 @@ class Ui_MainWindow(object):
 
                 # 키 이름과 KMK 코드 저장
                 combined_keys = "+".join(sorted(pressed_keys))  # 조합된 키 이름 생성
-                # kmk_code = KMK_KEYCODES.get(keyname.split("+")[-1], None)  # 마지막 키만 KMK 코드로 매핑
-                if keyname:
+                kmk_code = KMK_KEYCODES.get(keyname.split("+")[-1], None)  # 마지막 키만 KMK 코드로 매핑
+                if kmk_code:
                     self.layers[self.current_layer][index] = combined_keys  # 조합된 키 이름 저장
                     # keymaps[index] = kmk_code
 

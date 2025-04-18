@@ -1,4 +1,4 @@
-from kmk.keys import KC, Key
+from kmk.keys import KC, KeyboardKey
 from kmk.modules import Module
 from kmk.scheduler import cancel_task, create_task
 from kmk.utils import Debug
@@ -30,7 +30,7 @@ class Autoshift(Module):
             return key
 
         # Only shift from an unshifted state
-        if keyboard._hid_helper.has_key(KC.LSHIFT):
+        if KC.LSFT in keyboard.keys_pressed:
             return key
 
         # Ignore rolls from tapped to hold
@@ -41,8 +41,7 @@ class Autoshift(Module):
         if (
             is_pressed
             and not self._key
-            and isinstance(key, Key)
-            and key.code
+            and isinstance(key, KeyboardKey)
             and KC.A.code <= key.code <= KC.Z.code
         ):
             create_task(self._task, after_ms=self.tap_time)
