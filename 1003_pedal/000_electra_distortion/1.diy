@@ -55,9 +55,9 @@
         <value>100</value>
       </alphaPercent>
       <controlPoints>
-        <point x="5.8" y="2.8"/>
         <point x="6.0" y="2.8"/>
         <point x="6.2" y="2.8"/>
+        <point x="6.4" y="2.8"/>
       </controlPoints>
       <resistance value="5.0" unit="K"/>
       <orientation>DEFAULT</orientation>
@@ -205,8 +205,8 @@
       <width value="0.125" unit="in"/>
       <points>
         <point x="5.0" y="2.7"/>
+        <point x="5.4" y="2.7"/>
         <point x="5.2" y="2.7"/>
-        <point x="5.1" y="2.7"/>
       </points>
       <bodyColor hex="82cffd"/>
       <borderColor hex="5b90b1"/>
@@ -231,9 +231,9 @@
       <length value="7.3" unit="mm"/>
       <width value="2.5" unit="mm"/>
       <points>
-        <point x="5.6" y="2.7"/>
-        <point x="5.3" y="2.7"/>
-        <point x="5.45" y="2.7"/>
+        <point x="5.6" y="2.6"/>
+        <point x="5.3" y="2.6"/>
+        <point x="5.45" y="2.6"/>
       </points>
       <bodyColor hex="006633"/>
       <borderColor hex="016391"/>
@@ -260,9 +260,9 @@
         <value>100</value>
       </alphaPercent>
       <points>
-        <point x="5.8" y="2.8"/>
+        <point x="6.0" y="2.8"/>
         <point x="5.8" y="2.6"/>
-        <point x="5.8" y="2.7"/>
+        <point x="5.9" y="2.7"/>
       </points>
       <bodyColor hex="ffffff"/>
       <borderColor hex="000000"/>
@@ -282,9 +282,9 @@
         <value>100</value>
       </alphaPercent>
       <points>
-        <point x="6.0" y="2.8"/>
-        <point x="5.6" y="2.6"/>
-        <point x="5.8" y="2.7"/>
+        <point x="6.2" y="2.8"/>
+        <point x="5.6" y="2.7"/>
+        <point x="5.9" y="2.75"/>
       </points>
       <bodyColor hex="ffffff"/>
       <borderColor hex="000000"/>
@@ -304,9 +304,9 @@
         <value>100</value>
       </alphaPercent>
       <points>
-        <point x="6.2" y="2.8"/>
+        <point x="6.4" y="2.8"/>
         <point x="5.6" y="4.6"/>
-        <point x="5.9" y="3.7"/>
+        <point x="6.0" y="3.7"/>
       </points>
       <bodyColor hex="ffffff"/>
       <borderColor hex="000000"/>
@@ -340,8 +340,8 @@
       </alphaPercent>
       <points>
         <point x="6.4" y="4.6"/>
-        <point x="5.8" y="3.6"/>
-        <point x="6.1" y="4.1"/>
+        <point x="5.8" y="4.2"/>
+        <point x="6.1" y="4.3999999999999995"/>
       </points>
       <bodyColor hex="ffffff"/>
       <borderColor hex="000000"/>
@@ -354,18 +354,147 @@
       <hideShortLeads>false</hideShortLeads>
       <style>SOLID</style>
     </diylc.connectivity.Jumper>
+    <diylc.connectivity.TraceCut>
+      <id>e91ec3ab-c3a9-44fc-a2b8-334d5784cea1</id>
+      <name>Cut1</name>
+      <alphaPercent>
+        <value>100</value>
+      </alphaPercent>
+      <size value="0.08" unit="in"/>
+      <fillColor hex="ffffff"/>
+      <borderColor hex="ff0000"/>
+      <boardColor hex="f8ebb3"/>
+      <cutBetweenHoles>false</cutBetweenHoles>
+      <orientation>VERTICAL</orientation>
+      <holeSpacing value="0.1" unit="in"/>
+      <point x="5.0" y="3.1"/>
+    </diylc.connectivity.TraceCut>
+    <diylc.connectivity.Jumper>
+      <id>8ae5c98e-7fcf-4736-a2dc-9c327e1918de</id>
+      <name>J8</name>
+      <alphaPercent>
+        <value>100</value>
+      </alphaPercent>
+      <points>
+        <point x="5.1" y="4.6"/>
+        <point x="4.6" y="2.8"/>
+        <point x="4.85" y="3.7"/>
+      </points>
+      <bodyColor hex="ffffff"/>
+      <borderColor hex="000000"/>
+      <labelColor hex="000000"/>
+      <leadColor hex="ffff00"/>
+      <display>NAME</display>
+      <flipStanding>false</flipStanding>
+      <labelOriantation>Directional</labelOriantation>
+      <moveLabel>false</moveLabel>
+      <hideShortLeads>false</hideShortLeads>
+      <style>SOLID</style>
+    </diylc.connectivity.Jumper>
+    <diylc.connectivity.Jumper>
+      <id>90e2b3bc-fbd6-44af-9915-f36c2cbab07e</id>
+      <name>J9</name>
+      <alphaPercent>
+        <value>100</value>
+      </alphaPercent>
+      <points>
+        <point x="4.8" y="2.8"/>
+        <point x="5.4" y="2.4"/>
+        <point x="5.1" y="2.6"/>
+      </points>
+      <bodyColor hex="ffffff"/>
+      <borderColor hex="000000"/>
+      <labelColor hex="000000"/>
+      <leadColor hex="0000ff"/>
+      <display>NAME</display>
+      <flipStanding>false</flipStanding>
+      <labelOriantation>Directional</labelOriantation>
+      <moveLabel>false</moveLabel>
+      <hideShortLeads>false</hideShortLeads>
+      <style>SOLID</style>
+    </diylc.connectivity.Jumper>
+    <diylc.connectivity.TraceCut>
+      <id>55a8c8d7-fa53-4644-be55-49670983a800</id>
+      <name>Cut2</name>
+      <alphaPercent>
+        <value>100</value>
+      </alphaPercent>
+      <size value="0.08" unit="in"/>
+      <fillColor hex="ffffff"/>
+      <borderColor hex="ff0000"/>
+      <boardColor hex="f8ebb3"/>
+      <cutBetweenHoles>false</cutBetweenHoles>
+      <orientation>VERTICAL</orientation>
+      <holeSpacing value="0.1" unit="in"/>
+      <point x="5.5" y="3.1"/>
+    </diylc.connectivity.TraceCut>
+    <diylc.connectivity.Jumper>
+      <id>6a15dd9e-74dd-479a-9105-83a21a8af5c8</id>
+      <name>J10</name>
+      <alphaPercent>
+        <value>100</value>
+      </alphaPercent>
+      <points>
+        <point x="5.5" y="2.8"/>
+        <point x="5.2" y="2.4"/>
+        <point x="5.35" y="2.6"/>
+      </points>
+      <bodyColor hex="ffffff"/>
+      <borderColor hex="000000"/>
+      <labelColor hex="000000"/>
+      <leadColor hex="000000"/>
+      <display>NAME</display>
+      <flipStanding>false</flipStanding>
+      <labelOriantation>Directional</labelOriantation>
+      <moveLabel>false</moveLabel>
+      <hideShortLeads>false</hideShortLeads>
+      <style>SOLID</style>
+    </diylc.connectivity.Jumper>
+    <diylc.connectivity.Jumper>
+      <id>01d4be3e-573a-4f1e-aa5b-a56ce1d005a4</id>
+      <name>J11</name>
+      <alphaPercent>
+        <value>100</value>
+      </alphaPercent>
+      <points>
+        <point x="5.6" y="2.4"/>
+        <point x="5.0" y="3.3"/>
+        <point x="5.3" y="2.85"/>
+      </points>
+      <bodyColor hex="ffffff"/>
+      <borderColor hex="000000"/>
+      <labelColor hex="000000"/>
+      <leadColor hex="0000ff"/>
+      <display>NAME</display>
+      <flipStanding>false</flipStanding>
+      <labelOriantation>Directional</labelOriantation>
+      <moveLabel>false</moveLabel>
+      <hideShortLeads>false</hideShortLeads>
+      <style>SOLID</style>
+    </diylc.connectivity.Jumper>
+    <diylc.electromechanical.ClosedJack1__4>
+      <id>bfb56286-1141-452f-bf01-4cad1a6f029b</id>
+      <name>J7</name>
+      <alphaPercent reference="../../diylc.electromechanical.ClosedJack1__4/alphaPercent"/>
+      <controlPoints>
+        <point x="5.1" y="4.6"/>
+        <point x="4.3" y="4.6"/>
+      </controlPoints>
+      <type>MONO</type>
+      <orientation>_180</orientation>
+    </diylc.electromechanical.ClosedJack1__4>
     <diylc.passive.Resistor>
       <id>15a98136-78c2-4a5a-bac4-4857fe88adb1</id>
       <name>R3</name>
       <alphaPercent>
         <value>100</value>
       </alphaPercent>
-      <length value="0.5" unit="in"/>
+      <length value="10.0" unit="mm"/>
       <width value="0.125" unit="in"/>
       <points>
-        <point x="5.2" y="3.4"/>
+        <point x="5.4" y="3.4"/>
         <point x="5.8" y="3.4"/>
-        <point x="5.5" y="3.4"/>
+        <point x="5.6" y="3.4"/>
       </points>
       <bodyColor hex="82cffd"/>
       <borderColor hex="5b90b1"/>
@@ -376,7 +505,7 @@
       <labelOriantation>Horizontal</labelOriantation>
       <moveLabel>false</moveLabel>
       <hideShortLeads>false</hideShortLeads>
-      <value value="680.0" unit="K"/>
+      <value value="680.0" unit="R"/>
       <power>HALF</power>
       <colorCode>_5_BAND</colorCode>
       <shape>Standard</shape>
@@ -414,9 +543,9 @@
       <length value="7.3" unit="mm"/>
       <width value="2.5" unit="mm"/>
       <points>
-        <point x="5.2" y="3.6"/>
-        <point x="5.5" y="3.6"/>
-        <point x="5.35" y="3.6"/>
+        <point x="5.0" y="3.4"/>
+        <point x="5.3" y="3.4"/>
+        <point x="5.15" y="3.4"/>
       </points>
       <bodyColor hex="006633"/>
       <borderColor hex="016391"/>
@@ -428,6 +557,141 @@
       <moveLabel>false</moveLabel>
       <hideShortLeads>false</hideShortLeads>
       <value value="100.0" unit="nF"/>
+      <voltage>_63V</voltage>
+      <voltageNew value="100.0" unit="V"/>
+      <showOuterFoil>false</showOuterFoil>
+      <outerFoilColor hex="ffffff"/>
+      <type>Epcos MKT (5mm)</type>
+      <pinSpacing value="5.0" unit="mm"/>
+      <shape>BOX</shape>
+    </diylc.passive.RadialFilmCapacitor>
+    <diylc.semiconductors.DiodePlastic>
+      <id>e2bd82b4-88a5-4035-9ba6-0d5ce11830bf</id>
+      <name>D1</name>
+      <alphaPercent>
+        <value>100</value>
+      </alphaPercent>
+      <length value="0.25" unit="in"/>
+      <width value="0.125" unit="in"/>
+      <points>
+        <point x="5.5" y="3.6"/>
+        <point x="5.8" y="3.6"/>
+        <point x="5.65" y="3.6"/>
+      </points>
+      <bodyColor hex="404040"/>
+      <borderColor hex="2c2c2c"/>
+      <labelColor hex="ffffff"/>
+      <leadColor hex="cccccc"/>
+      <display>NAME</display>
+      <flipStanding>false</flipStanding>
+      <labelOriantation>Directional</labelOriantation>
+      <moveLabel>false</moveLabel>
+      <hideShortLeads>false</hideShortLeads>
+      <value></value>
+      <markerColor hex="dddddd"/>
+    </diylc.semiconductors.DiodePlastic>
+    <diylc.semiconductors.DiodePlastic>
+      <id>f7d7cbe6-b97b-47ff-bd9a-0940b8af16a0</id>
+      <name>D2</name>
+      <alphaPercent>
+        <value>100</value>
+      </alphaPercent>
+      <length value="0.25" unit="in"/>
+      <width value="0.125" unit="in"/>
+      <points>
+        <point x="5.8" y="3.8"/>
+        <point x="5.5" y="3.8"/>
+        <point x="5.65" y="3.8"/>
+      </points>
+      <bodyColor hex="404040"/>
+      <borderColor hex="2c2c2c"/>
+      <labelColor hex="ffffff"/>
+      <leadColor hex="cccccc"/>
+      <display>NAME</display>
+      <flipStanding>false</flipStanding>
+      <labelOriantation>Directional</labelOriantation>
+      <moveLabel>false</moveLabel>
+      <hideShortLeads>false</hideShortLeads>
+      <value></value>
+      <markerColor hex="dddddd"/>
+    </diylc.semiconductors.DiodePlastic>
+    <diylc.passive.PotentiometerPanel>
+      <id>06209959-ad90-4bc1-a7e1-b4c0de34a15f</id>
+      <name>VR2</name>
+      <alphaPercent>
+        <value>100</value>
+      </alphaPercent>
+      <controlPoints>
+        <point x="5.2" y="2.4"/>
+        <point x="5.4" y="2.4"/>
+        <point x="5.6" y="2.4"/>
+      </controlPoints>
+      <resistance value="100.0" unit="K"/>
+      <orientation>DEFAULT</orientation>
+      <taper>LIN</taper>
+      <bodyDiameter value="16.0" unit="mm"/>
+      <spacing value="0.2" unit="in"/>
+      <lugDiameter value="0.15" unit="in"/>
+      <bodyColor hex="c0c0c0"/>
+      <borderColor hex="808080"/>
+      <nutColor hex="cbd5db"/>
+      <waferColor hex="cd8500"/>
+      <type>ThroughHole</type>
+      <showShaft>false</showShaft>
+      <view>ShaftDown</view>
+      <showMarkers>false</showMarkers>
+      <markerColor hex="808080"/>
+    </diylc.passive.PotentiometerPanel>
+    <diylc.passive.PotentiometerPanel>
+      <id>6098cf06-8c3f-4cef-855e-c172bbdca9b2</id>
+      <name>VR3</name>
+      <alphaPercent>
+        <value>100</value>
+      </alphaPercent>
+      <controlPoints>
+        <point x="4.4" y="2.8"/>
+        <point x="4.6" y="2.8"/>
+        <point x="4.8" y="2.8"/>
+      </controlPoints>
+      <resistance value="50.0" unit="K"/>
+      <orientation>DEFAULT</orientation>
+      <taper>LOG</taper>
+      <bodyDiameter value="16.0" unit="mm"/>
+      <spacing value="0.2" unit="in"/>
+      <lugDiameter value="0.15" unit="in"/>
+      <bodyColor hex="c0c0c0"/>
+      <borderColor hex="808080"/>
+      <nutColor hex="cbd5db"/>
+      <waferColor hex="cd8500"/>
+      <type>ThroughHole</type>
+      <showShaft>false</showShaft>
+      <view>ShaftDown</view>
+      <showMarkers>false</showMarkers>
+      <markerColor hex="808080"/>
+    </diylc.passive.PotentiometerPanel>
+    <diylc.passive.RadialFilmCapacitor>
+      <id>06d2bdae-de4b-4a0a-a6e8-d1df41606896</id>
+      <name>C3</name>
+      <alphaPercent>
+        <value>100</value>
+      </alphaPercent>
+      <length value="6.0" unit="mm"/>
+      <width value="1.75" unit="mm"/>
+      <points>
+        <point x="5.5" y="2.9"/>
+        <point x="5.8" y="2.9"/>
+        <point x="5.65" y="2.9"/>
+      </points>
+      <bodyColor hex="006633"/>
+      <borderColor hex="016391"/>
+      <labelColor hex="000000"/>
+      <leadColor hex="cccccc"/>
+      <display>VALUE</display>
+      <flipStanding>false</flipStanding>
+      <labelOriantation>Directional</labelOriantation>
+      <moveLabel>false</moveLabel>
+      <hideShortLeads>false</hideShortLeads>
+      <value value="47.0" unit="nF"/>
       <voltage>_63V</voltage>
       <voltageNew value="100.0" unit="V"/>
       <showOuterFoil>false</showOuterFoil>
