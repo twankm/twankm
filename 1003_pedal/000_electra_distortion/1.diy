@@ -217,7 +217,7 @@
       <labelOriantation>Horizontal</labelOriantation>
       <moveLabel>false</moveLabel>
       <hideShortLeads>false</hideShortLeads>
-      <value value="100.0" unit="K"/>
+      <value value="47.0" unit="K"/>
       <power>HALF</power>
       <colorCode>_5_BAND</colorCode>
       <shape>Standard</shape>
@@ -722,6 +722,51 @@
       <pinSpacing value="5.0" unit="mm"/>
       <shape>BOX</shape>
     </diylc.passive.RadialFilmCapacitor>
+    <diylc.electromechanical.MiniToggleSwitch>
+      <id>b953ddaf-f227-4a0b-a91f-6d63a3ea5c07</id>
+      <name defined-in="diylc.AbstractComponent">SW2</name>
+      <alphaPercent>
+        <value>100</value>
+      </alphaPercent>
+      <controlPoints>
+        <point x="6.1" y="3.7"/>
+        <point x="6.1" y="3.9"/>
+        <point x="6.1" y="4.1"/>
+        <point x="6.3" y="3.7"/>
+        <point x="6.3" y="3.9"/>
+        <point x="6.3" y="4.1"/>
+      </controlPoints>
+      <switchType>DPDT</switchType>
+      <orientation>VERTICAL</orientation>
+      <spacing value="0.2" unit="in"/>
+      <bodyColor hex="3299cc"/>
+      <borderColor hex="236b8e"/>
+      <terminalPadColor hex="287ba4"/>
+      <terminalColor hex="eeeeee"/>
+      <showMarkers>false</showMarkers>
+    </diylc.electromechanical.MiniToggleSwitch>
+    <diylc.connectivity.Jumper>
+      <id>eddd5e25-7523-49ac-91ea-0288665889a3</id>
+      <name>J13</name>
+      <alphaPercent>
+        <value>100</value>
+      </alphaPercent>
+      <points>
+        <point x="5.8" y="3.9"/>
+        <point x="6.1" y="3.9"/>
+        <point x="5.95" y="3.9"/>
+      </points>
+      <bodyColor hex="ffffff"/>
+      <borderColor hex="000000"/>
+      <labelColor hex="000000"/>
+      <leadColor hex="000000"/>
+      <display>NAME</display>
+      <flipStanding>false</flipStanding>
+      <labelOriantation>Directional</labelOriantation>
+      <moveLabel>false</moveLabel>
+      <hideShortLeads>false</hideShortLeads>
+      <style>SOLID</style>
+    </diylc.connectivity.Jumper>
   </components>
   <groups/>
   <groupsEx/>
