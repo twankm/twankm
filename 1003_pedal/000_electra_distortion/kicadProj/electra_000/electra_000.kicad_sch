@@ -3271,7 +3271,7 @@
 				(justify right)
 			)
 		)
-		(property "Footprint" "Potentiometer_THT:Potentiometer_Alps_RK09L_Single_Vertical"
+		(property "Footprint" "Monkey_Riot_Pedals_Library:POT_16MM"
 			(at 173.99 66.04 0)
 			(hide yes)
 			(show_name no)
@@ -3736,7 +3736,7 @@
 				(justify right)
 			)
 		)
-		(property "Footprint" "Potentiometer_THT:Potentiometer_Alps_RK09L_Single_Vertical"
+		(property "Footprint" "Monkey_Riot_Pedals_Library:POT_16MM"
 			(at 153.67 48.26 0)
 			(hide yes)
 			(show_name no)
@@ -4012,7 +4012,7 @@
 				(justify right)
 			)
 		)
-		(property "Footprint" "Potentiometer_THT:Potentiometer_Alps_RK09L_Single_Vertical"
+		(property "Footprint" "Monkey_Riot_Pedals_Library:POT_16MM"
 			(at 111.76 44.45 0)
 			(hide yes)
 			(show_name no)
@@ -4128,7 +4128,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Button_Switch_THT:SW_DIP_SPSTx04_Slide_6.7x11.72mm_W7.62mm_P2.54mm_LowProfile"
+		(property "Footprint" "Monkey_Riot_Pedals_Library:DPDT.LUGS"
 			(at 182.88 102.87 0)
 			(hide yes)
 			(show_name no)

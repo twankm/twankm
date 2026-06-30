@@ -1,0 +1,51 @@
+(footprint "SOT23_TRANSISTOR-BEC" (version 20221018) (generator pcbnew)
+  (layer "F.Cu")
+  (descr "TO-236 ITT Intermetall")
+  (attr through_hole)
+  (fp_text reference ">NAME" (at 0 2.159) (layer "F.SilkS")
+      (effects (font (size 0.57912 0.57912) (thickness 0.048768)))
+    (tstamp fe9f8546-66ad-4a0a-a2d3-965abc416036)
+  )
+  (fp_text value "Val**" (at 0 0) (layer "F.SilkS")
+      (effects (font (size 1.524 1.524) (thickness 0.15)))
+    (tstamp 6395c7f9-9634-4e6d-9606-8c01791224ea)
+  )
+  (fp_line (start -1.4224 -0.6604) (end 1.4224 -0.6604)
+    (stroke (width 0.127) (type solid)) (layer "F.SilkS") (tstamp 5e4bc3bc-05bb-4259-9cec-2501bb64aa82))
+  (fp_line (start -1.4224 0.6604) (end -1.4224 -0.6604)
+    (stroke (width 0.127) (type solid)) (layer "F.SilkS") (tstamp 3ccc3cb2-cfe5-419a-8259-7ef54cd81476))
+  (fp_line (start 1.4224 -0.6604) (end 1.4224 0.6604)
+    (stroke (width 0.127) (type solid)) (layer "F.SilkS") (tstamp ba7d0e60-4f09-4ae0-a124-eeb67b37acf4))
+  (fp_line (start 1.4224 0.6604) (end -1.4224 0.6604)
+    (stroke (width 0.127) (type solid)) (layer "F.SilkS") (tstamp e1e61c7b-f9bb-438f-8cf0-e8b03ce42286))
+  (fp_poly
+    (pts
+      (xy -1.1684 1.2954)
+      (xy -0.7112 1.2954)
+      (xy -0.7112 0.7112)
+      (xy -1.1684 0.7112)
+    )
+
+    (stroke (width 0) (type solid)) (fill solid) (layer "F.SilkS") (tstamp b00612ee-0ce6-4ed5-bfa7-6c24eba8f5fb))
+  (fp_poly
+    (pts
+      (xy -0.2286 -0.7112)
+      (xy 0.2286 -0.7112)
+      (xy 0.2286 -1.2954)
+      (xy -0.2286 -1.2954)
+    )
+
+    (stroke (width 0) (type solid)) (fill solid) (layer "F.SilkS") (tstamp a87bba68-8caf-46d2-aa62-db7b5c4586ff))
+  (fp_poly
+    (pts
+      (xy 0.7112 1.2954)
+      (xy 1.1684 1.2954)
+      (xy 1.1684 0.7112)
+      (xy 0.7112 0.7112)
+    )
+
+    (stroke (width 0) (type solid)) (fill solid) (layer "F.SilkS") (tstamp a94def08-30c4-4ac8-9e9c-26febdd38667))
+  (pad "B" smd rect (at -0.95 1.1) (size 1 1.4) (layers "F.Cu" "F.Paste" "F.Mask") (tstamp 4a25e900-f94d-42b0-91d0-acdb3d9aff89))
+  (pad "C" smd rect (at 0 -1.1) (size 1 1.4) (layers "F.Cu" "F.Paste" "F.Mask") (tstamp 66b25aa3-2885-4af4-ba0f-5c523c5b06c8))
+  (pad "E" smd rect (at 0.95 1.1) (size 1 1.4) (layers "F.Cu" "F.Paste" "F.Mask") (tstamp 680eb24f-4635-4aeb-8efb-dbc463eb00c8))
+)
