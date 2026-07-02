@@ -2958,6 +2958,17 @@
 				)
 			)
 		)
+		(property "KiLib_Generator" "capacitor/THT/other"
+			(at 163.83 44.45 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "1f0bdd60-bb31-473f-8feb-bbac324d213f")
 		)
@@ -3120,6 +3131,17 @@
 				)
 			)
 		)
+		(property "KiLib_Generator" "resistor/THT"
+			(at 129.54 110.49 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "2"
 			(uuid "57b2408b-aa82-4723-ab54-754694939001")
 		)
@@ -3212,6 +3234,17 @@
 			)
 		)
 		(property "Sim.Pins" "1=K 2=A"
+			(at 152.4 83.82 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "KiLib_Generator" "diode/THT"
 			(at 152.4 83.82 0)
 			(hide yes)
 			(show_name no)
@@ -3607,6 +3640,17 @@
 				)
 			)
 		)
+		(property "KiLib_Generator" "resistor/THT"
+			(at 129.54 58.42 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "fed1a6c2-6e95-4889-9174-9f2a0efbb072")
 		)
@@ -3677,6 +3721,17 @@
 			)
 		)
 		(property "Description" "Unpolarized capacitor"
+			(at 163.83 66.04 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "KiLib_Generator" "capacitor/THT/other"
 			(at 163.83 66.04 0)
 			(hide yes)
 			(show_name no)
@@ -3953,6 +4008,17 @@
 			)
 		)
 		(property "Description" "40V 1A Schottky Barrier Rectifier Diode, DO-41"
+			(at 152.4 97.79 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "KiLib_Generator" "diode/THT"
 			(at 152.4 97.79 0)
 			(hide yes)
 			(show_name no)
@@ -4253,6 +4319,17 @@
 				)
 			)
 		)
+		(property "KiLib_Generator" "capacitor/THT/other"
+			(at 143.51 62.23 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "d8a871f7-14f2-479c-a95a-1eefaea213b4")
 		)
@@ -4300,7 +4377,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P7.62mm_Horizontal"
+		(property "Footprint" "Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P2.54mm_Vertical"
 			(at 125.73 64.008 90)
 			(hide yes)
 			(show_name no)
@@ -4323,6 +4400,17 @@
 			)
 		)
 		(property "Description" "Resistor"
+			(at 125.73 62.23 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "KiLib_Generator" "resistor/THT"
 			(at 125.73 62.23 0)
 			(hide yes)
 			(show_name no)
@@ -4513,6 +4601,17 @@
 				)
 			)
 		)
+		(property "KiLib_Generator" "diode/THT"
+			(at 152.4 78.74 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(pin "1"
 			(uuid "5e3616bb-fa52-4c4b-b341-73bf2b3a334d")
 		)
@@ -4665,6 +4764,17 @@
 			)
 		)
 		(property "Description" "40V 1A Schottky Barrier Rectifier Diode, DO-41"
+			(at 152.4 106.68 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "KiLib_Generator" "diode/THT"
 			(at 152.4 106.68 0)
 			(hide yes)
 			(show_name no)
