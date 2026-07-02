@@ -2191,6 +2191,16 @@
 	)
 	(wire
 		(pts
+			(xy 121.92 66.04) (xy 160.02 66.04)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "04f83487-cdd5-4ce1-9e06-9f572e4b66ac")
+	)
+	(wire
+		(pts
 			(xy 163.83 90.17) (xy 163.83 102.87)
 		)
 		(stroke
@@ -2428,16 +2438,6 @@
 			(type default)
 		)
 		(uuid "79d90d06-453f-45bd-aaa5-a8a8c895b390")
-	)
-	(wire
-		(pts
-			(xy 160.02 66.04) (xy 121.92 66.04)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "919be379-8d2a-4968-8d39-5c0aaa581846")
 	)
 	(wire
 		(pts
@@ -3098,7 +3098,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P7.62mm_Horizontal"
+		(property "Footprint" "Resistor_THT:R_Axial_DIN0309_L9.0mm_D3.2mm_P12.70mm_Horizontal"
 			(at 127.762 110.49 90)
 			(hide yes)
 			(show_name no)
@@ -3489,7 +3489,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "Q_NPN_BCE"
+		(property "Value" "Q_NPN_CBE"
 			(at 132.08 73.6599 0)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3500,7 +3500,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Package_TO_SOT_THT:TO-92_Inline"
+		(property "Footprint" "Monkey_Riot_Pedals_Library:TO-92L_INLINE_WIDE"
 			(at 132.08 69.85 0)
 			(hide yes)
 			(show_name no)
@@ -3607,7 +3607,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P7.62mm_Horizontal"
+		(property "Footprint" "Resistor_THT:R_Axial_DIN0204_L3.6mm_D1.6mm_P7.62mm_Horizontal"
 			(at 127.762 58.42 90)
 			(hide yes)
 			(show_name no)
@@ -3985,7 +3985,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Diode_THT:D_DO-41_SOD81_P10.16mm_Horizontal"
+		(property "Footprint" "Diode_THT:D_DO-41_SOD81_P7.62mm_Horizontal"
 			(at 152.4 102.235 0)
 			(hide yes)
 			(show_name no)
@@ -4347,7 +4347,7 @@
 	)
 	(symbol
 		(lib_id "Device:R")
-		(at 125.73 62.23 90)
+		(at 125.73 62.23 270)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -4377,8 +4377,8 @@
 				)
 			)
 		)
-		(property "Footprint" "Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P2.54mm_Vertical"
-			(at 125.73 64.008 90)
+		(property "Footprint" "Resistor_THT:R_Axial_DIN0204_L3.6mm_D1.6mm_P2.54mm_Vertical"
+			(at 125.73 60.452 90)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4741,7 +4741,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Diode_THT:D_DO-41_SOD81_P10.16mm_Horizontal"
+		(property "Footprint" "Diode_THT:D_DO-41_SOD81_P7.62mm_Horizontal"
 			(at 152.4 102.235 0)
 			(hide yes)
 			(show_name no)
