@@ -1,0 +1,337 @@
+{
+  "format": "Vero Designer",
+  "version": 11,
+  "components": [
+    {
+      "id": "P1",
+      "instanceUid": "CMP-msah4j08-4r27nt",
+      "type": "terminal",
+      "value": "9V",
+      "x": 1180,
+      "y": 320,
+      "rotation": 0,
+      "netScope": "offboard"
+    },
+    {
+      "id": "P2",
+      "instanceUid": "CMP-msah4npu-o44hrj",
+      "type": "terminal",
+      "value": "GND",
+      "x": 1100,
+      "y": 1160,
+      "rotation": 0,
+      "netScope": "offboard"
+    },
+    {
+      "id": "R1",
+      "instanceUid": "CMP-msah5ri9-mx3uul",
+      "type": "resistor",
+      "value": "68kΩ",
+      "x": 1180,
+      "y": 480,
+      "rotation": 90
+    },
+    {
+      "id": "R2",
+      "instanceUid": "CMP-msah5xic-zh26uc",
+      "type": "resistor",
+      "value": "220kΩ",
+      "x": 1020,
+      "y": 600,
+      "rotation": 0
+    },
+    {
+      "id": "R3",
+      "instanceUid": "CMP-msah613e-o2maqv",
+      "type": "resistor",
+      "value": "330Ω",
+      "x": 840,
+      "y": 1000,
+      "rotation": 0
+    },
+    {
+      "id": "POT1",
+      "instanceUid": "CMP-msah68c0-tdl744",
+      "type": "potentiometer",
+      "value": "5K",
+      "x": 1360,
+      "y": 860,
+      "rotation": 0
+    },
+    {
+      "id": "POT2",
+      "instanceUid": "CMP-msah6aha-3ojhwp",
+      "type": "potentiometer",
+      "value": "1M",
+      "x": 820,
+      "y": 600,
+      "rotation": 0
+    },
+    {
+      "id": "POT3",
+      "instanceUid": "CMP-msah6cd9-hg0s5o",
+      "type": "potentiometer",
+      "value": "100K",
+      "x": 440,
+      "y": 900,
+      "rotation": 0
+    },
+    {
+      "id": "Q1",
+      "instanceUid": "CMP-msah7kh2-h78zle",
+      "type": "transistor",
+      "value": "3BX31C",
+      "x": 840,
+      "y": 740,
+      "rotation": 90,
+      "transistorKind": "npn"
+    },
+    {
+      "id": "P3",
+      "instanceUid": "CMP-msahakmj-o1gxp3",
+      "type": "terminal",
+      "value": "INPUT",
+      "x": 1640,
+      "y": 860,
+      "rotation": 0,
+      "netScope": "offboard"
+    },
+    {
+      "id": "C1",
+      "instanceUid": "CMP-msahbc5i-89voxw",
+      "type": "capacitor",
+      "value": "100nF",
+      "x": 1300,
+      "y": 1100,
+      "rotation": 0
+    },
+    {
+      "id": "C2",
+      "instanceUid": "CMP-msahdkz6-218z1f",
+      "type": "capacitorPolarized",
+      "value": "0.1µF",
+      "x": 680,
+      "y": 900,
+      "rotation": 180
+    },
+    {
+      "id": "P4",
+      "instanceUid": "CMP-msahglp4-o9brsx",
+      "type": "terminal",
+      "value": "OUTPUT",
+      "x": 340,
+      "y": 1020,
+      "rotation": 180,
+      "netScope": "offboard"
+    },
+    {
+      "id": "C3",
+      "instanceUid": "CMP-msahhhfz-8bw2rq",
+      "type": "capacitor",
+      "value": "0.47nF",
+      "x": 440,
+      "y": 1160,
+      "rotation": 0
+    },
+    {
+      "id": "D1",
+      "instanceUid": "CMP-msahihcc-bdxqwl",
+      "type": "diode",
+      "value": "1N4148",
+      "x": 560,
+      "y": 720,
+      "rotation": 180
+    },
+    {
+      "id": "D2",
+      "instanceUid": "CMP-msahikey-ut5i70",
+      "type": "diode",
+      "value": "1N4148",
+      "x": 560,
+      "y": 640,
+      "rotation": 0
+    },
+    {
+      "id": "D3",
+      "instanceUid": "CMP-msahiniv-3ltzcs",
+      "type": "diode",
+      "value": "1N5819",
+      "x": 560,
+      "y": 520,
+      "rotation": 180
+    },
+    {
+      "id": "D4",
+      "instanceUid": "CMP-msahipk9-xuvgd1",
+      "type": "diode",
+      "value": "1N4148",
+      "x": 560,
+      "y": 440,
+      "rotation": 0
+    },
+    {
+      "id": "SW1",
+      "instanceUid": "CMP-msahjdxd-ai8yzt",
+      "type": "switch",
+      "value": "switch1",
+      "x": 200,
+      "y": 540,
+      "rotation": 0,
+      "switchKind": "spdt"
+    }
+  ],
+  "wires": [
+    {
+      "id": "W-msah92xn-68z1pt",
+      "a": "P1:1",
+      "b": "R1:1"
+    },
+    {
+      "id": "W-msah94w3-1ace24",
+      "a": "R1:2",
+      "b": "R2:2"
+    },
+    {
+      "id": "W-msah97t9-7nmlif",
+      "a": "R2:1",
+      "b": "POT2:3"
+    },
+    {
+      "id": "W-msah9dim-1cid1s",
+      "a": "POT2:2",
+      "b": "Q1:B"
+    },
+    {
+      "id": "W-msahb0ey-tnr5so",
+      "a": "POT1:3",
+      "b": "P3:1"
+    },
+    {
+      "id": "W-msahbfbz-ki6poj",
+      "a": "POT1:2",
+      "b": "C1:2"
+    },
+    {
+      "id": "W-msahbifo-qdjkaw",
+      "a": "C1:1",
+      "b": "Q1:B"
+    },
+    {
+      "id": "W-msahcdfv-gmi7l1",
+      "a": "R1:2",
+      "b": "Q1:C"
+    },
+    {
+      "id": "W-msaheb1l-orr0un",
+      "a": "R3:1",
+      "b": "Q1:E"
+    },
+    {
+      "id": "W-msaheeiw-co5dx6",
+      "a": "R3:2",
+      "b": "P2:1"
+    },
+    {
+      "id": "W-msahejnl-usvuo2",
+      "a": "POT1:1",
+      "b": "P2:1"
+    },
+    {
+      "id": "W-msahfaju-p23x97",
+      "a": "Q1:C",
+      "b": "C2:+"
+    },
+    {
+      "id": "W-msahg51n-hhiz2a",
+      "a": "C2:−",
+      "b": "POT3:3"
+    },
+    {
+      "id": "W-msahh40i-ls3i5m",
+      "a": "P4:1",
+      "b": "POT3:2"
+    },
+    {
+      "id": "W-msahhq0i-yxs8da",
+      "a": "POT3:1",
+      "b": "C3:1"
+    },
+    {
+      "id": "W-msahhygi-ok6cvk",
+      "a": "C3:2",
+      "b": "P2:1"
+    },
+    {
+      "id": "W-msahizp4-poycjh",
+      "a": "C2:−",
+      "b": "D1:A"
+    },
+    {
+      "id": "W-msahj1ei-9ud7fe",
+      "a": "D1:A",
+      "b": "D2:K"
+    },
+    {
+      "id": "W-msahj2co-zar4ql",
+      "a": "D2:K",
+      "b": "D3:A"
+    },
+    {
+      "id": "W-msahj3tt-he5pbh",
+      "a": "D3:A",
+      "b": "D4:K"
+    },
+    {
+      "id": "W-msahk9jr-04xgln",
+      "a": "D4:A",
+      "b": "SW1:2"
+    },
+    {
+      "id": "W-msahkbjw-851bpw",
+      "a": "D3:K",
+      "b": "SW1:2"
+    },
+    {
+      "id": "W-msahkdjy-9bqqx1",
+      "a": "D2:A",
+      "b": "SW1:3"
+    },
+    {
+      "id": "W-msahkfpg-1fb0c8",
+      "a": "D1:K",
+      "b": "SW1:3"
+    },
+    {
+      "id": "W-msahkuur-3v0wvm",
+      "a": "SW1:1",
+      "b": "C3:2"
+    },
+    {
+      "id": "W-msahl0mm-cdoi7l",
+      "a": "POT2:1",
+      "b": "R3:2"
+    }
+  ],
+  "counters": {
+    "P": 4,
+    "R": 3,
+    "POT": 3,
+    "Q": 1,
+    "C": 3,
+    "D": 4,
+    "SW": 2,
+    "IC": 1
+  },
+  "boardSettings": {
+    "maxColumns": 20,
+    "busSpacing": 2,
+    "spareRows": 0,
+    "componentOpacity": 1,
+    "avoidLinksOverComponents": true,
+    "allowDoubleLinks": true
+  },
+  "projectMeta": {
+    "name": "Generated Vero layout",
+    "description": ""
+  }
+}
