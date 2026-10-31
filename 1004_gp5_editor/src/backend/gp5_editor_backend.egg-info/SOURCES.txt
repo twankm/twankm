@@ -1,0 +1,9 @@
+pyproject.toml
+app/__init__.py
+app/main.py
+gp5_editor_backend.egg-info/PKG-INFO
+gp5_editor_backend.egg-info/SOURCES.txt
+gp5_editor_backend.egg-info/dependency_links.txt
+gp5_editor_backend.egg-info/requires.txt
+gp5_editor_backend.egg-info/top_level.txt
+tests/test_smoke.py

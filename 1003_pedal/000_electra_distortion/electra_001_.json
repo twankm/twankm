@@ -1,0 +1,1802 @@
+{
+  "format": "Vero Designer",
+  "version": 13,
+  "components": [
+    {
+      "id": "P1",
+      "instanceUid": "CMP-msah4j08-4r27nt",
+      "type": "terminal",
+      "netScope": "offboard",
+      "value": "9V",
+      "x": 1180,
+      "y": 320,
+      "rotation": 0,
+      "mirrored": false,
+      "quickNet": true,
+      "quickNetRole": "power"
+    },
+    {
+      "id": "P2",
+      "instanceUid": "CMP-msah4npu-o44hrj",
+      "type": "terminal",
+      "netScope": "offboard",
+      "value": "GND",
+      "x": 1100,
+      "y": 1160,
+      "rotation": 0,
+      "mirrored": false,
+      "quickNet": true,
+      "quickNetRole": "ground"
+    },
+    {
+      "id": "R1",
+      "instanceUid": "CMP-msah5ri9-mx3uul",
+      "type": "resistor",
+      "value": "68kΩ",
+      "x": 1180,
+      "y": 480,
+      "rotation": 90,
+      "mirrored": false
+    },
+    {
+      "id": "R2",
+      "instanceUid": "CMP-msah5xic-zh26uc",
+      "type": "resistor",
+      "value": "220kΩ",
+      "x": 1020,
+      "y": 600,
+      "rotation": 0,
+      "mirrored": false
+    },
+    {
+      "id": "R3",
+      "instanceUid": "CMP-msah613e-o2maqv",
+      "type": "resistor",
+      "value": "330Ω",
+      "x": 840,
+      "y": 1000,
+      "rotation": 0,
+      "mirrored": false
+    },
+    {
+      "id": "VR1",
+      "instanceUid": "CMP-msah68c0-tdl744",
+      "type": "potentiometer",
+      "potType": "pot",
+      "potResistance": "5k",
+      "value": "5K",
+      "x": 1360,
+      "y": 860,
+      "rotation": 0,
+      "mirrored": false
+    },
+    {
+      "id": "VR2",
+      "instanceUid": "CMP-msah6aha-3ojhwp",
+      "type": "potentiometer",
+      "potType": "pot",
+      "potResistance": "1M",
+      "value": "VR2",
+      "x": 800,
+      "y": 480,
+      "rotation": 0,
+      "mirrored": false
+    },
+    {
+      "id": "VR3",
+      "instanceUid": "CMP-msah6cd9-hg0s5o",
+      "type": "potentiometer",
+      "potType": "pot",
+      "potResistance": "100k",
+      "value": "100K",
+      "x": 380,
+      "y": 900,
+      "rotation": 0,
+      "mirrored": false
+    },
+    {
+      "id": "Q1",
+      "instanceUid": "CMP-msah7kh2-h78zle",
+      "type": "transistor",
+      "transistorKind": "npn",
+      "transistorPinout": [
+        "C",
+        "B",
+        "E"
+      ],
+      "value": "3BX31C",
+      "x": 840,
+      "y": 740,
+      "rotation": 90,
+      "mirrored": false
+    },
+    {
+      "id": "P3",
+      "instanceUid": "CMP-msahakmj-o1gxp3",
+      "type": "terminal",
+      "netScope": "offboard",
+      "value": "INPUT",
+      "x": 1640,
+      "y": 860,
+      "rotation": 0,
+      "mirrored": false,
+      "quickNet": true,
+      "quickNetRole": "input"
+    },
+    {
+      "id": "C1",
+      "instanceUid": "CMP-msahbc5i-89voxw",
+      "type": "capacitor",
+      "value": "100nF",
+      "x": 1300,
+      "y": 1100,
+      "rotation": 0,
+      "mirrored": false
+    },
+    {
+      "id": "C2",
+      "instanceUid": "CMP-msahdkz6-218z1f",
+      "type": "capacitorPolarized",
+      "value": "0.1µF",
+      "x": 680,
+      "y": 900,
+      "rotation": 180,
+      "mirrored": false
+    },
+    {
+      "id": "P4",
+      "instanceUid": "CMP-msahglp4-o9brsx",
+      "type": "terminal",
+      "netScope": "offboard",
+      "value": "OUTPUT",
+      "x": 260,
+      "y": 960,
+      "rotation": 180,
+      "mirrored": false,
+      "quickNet": true,
+      "quickNetRole": "output"
+    },
+    {
+      "id": "C3",
+      "instanceUid": "CMP-msahhhfz-8bw2rq",
+      "type": "capacitor",
+      "value": "0.47nF",
+      "x": 440,
+      "y": 1160,
+      "rotation": 0,
+      "mirrored": false
+    },
+    {
+      "id": "D1",
+      "instanceUid": "CMP-msahihcc-bdxqwl",
+      "type": "diode",
+      "diodeKind": "standard",
+      "value": "1N4148",
+      "x": 560,
+      "y": 720,
+      "rotation": 180,
+      "mirrored": false
+    },
+    {
+      "id": "D2",
+      "instanceUid": "CMP-msahikey-ut5i70",
+      "type": "diode",
+      "diodeKind": "standard",
+      "value": "1N4148",
+      "x": 560,
+      "y": 640,
+      "rotation": 0,
+      "mirrored": false
+    },
+    {
+      "id": "D3",
+      "instanceUid": "CMP-msahiniv-3ltzcs",
+      "type": "diode",
+      "diodeKind": "schottky",
+      "value": "1N5819",
+      "x": 560,
+      "y": 520,
+      "rotation": 180,
+      "mirrored": false
+    },
+    {
+      "id": "D4",
+      "instanceUid": "CMP-msahipk9-xuvgd1",
+      "type": "diode",
+      "diodeKind": "standard",
+      "value": "1N4148",
+      "x": 560,
+      "y": 440,
+      "rotation": 0,
+      "mirrored": false
+    },
+    {
+      "id": "SW1",
+      "instanceUid": "CMP-msahjdxd-ai8yzt",
+      "type": "switch",
+      "switchKind": "spdt",
+      "value": "switch1",
+      "x": 200,
+      "y": 540,
+      "rotation": 0,
+      "mirrored": false
+    }
+  ],
+  "wires": [
+    {
+      "id": "W-msah92xn-68z1pt",
+      "a": "P1:1",
+      "b": "R1:1"
+    },
+    {
+      "id": "W-msah94w3-1ace24",
+      "a": "R1:2",
+      "b": "R2:2"
+    },
+    {
+      "id": "W-msah97t9-7nmlif",
+      "a": "R2:1",
+      "b": "VR2:3"
+    },
+    {
+      "id": "W-msah9dim-1cid1s",
+      "a": "VR2:2",
+      "b": "Q1:B"
+    },
+    {
+      "id": "W-msahb0ey-tnr5so",
+      "a": "VR1:3",
+      "b": "P3:1"
+    },
+    {
+      "id": "W-msahbfbz-ki6poj",
+      "a": "VR1:2",
+      "b": "C1:2"
+    },
+    {
+      "id": "W-msahbifo-qdjkaw",
+      "a": "C1:1",
+      "b": "Q1:B"
+    },
+    {
+      "id": "W-msahcdfv-gmi7l1",
+      "a": "R1:2",
+      "b": "Q1:C"
+    },
+    {
+      "id": "W-msaheb1l-orr0un",
+      "a": "R3:1",
+      "b": "Q1:E"
+    },
+    {
+      "id": "W-msaheeiw-co5dx6",
+      "a": "R3:2",
+      "b": "P2:1"
+    },
+    {
+      "id": "W-msahejnl-usvuo2",
+      "a": "VR1:1",
+      "b": "P2:1"
+    },
+    {
+      "id": "W-msahfaju-p23x97",
+      "a": "Q1:C",
+      "b": "C2:+"
+    },
+    {
+      "id": "W-msahg51n-hhiz2a",
+      "a": "C2:−",
+      "b": "VR3:3"
+    },
+    {
+      "id": "W-msahh40i-ls3i5m",
+      "a": "P4:1",
+      "b": "VR3:2"
+    },
+    {
+      "id": "W-msahhq0i-yxs8da",
+      "a": "VR3:1",
+      "b": "C3:1"
+    },
+    {
+      "id": "W-msahhygi-ok6cvk",
+      "a": "C3:2",
+      "b": "P2:1"
+    },
+    {
+      "id": "W-msahizp4-poycjh",
+      "a": "C2:−",
+      "b": "D1:A"
+    },
+    {
+      "id": "W-msahj1ei-9ud7fe",
+      "a": "D1:A",
+      "b": "D2:K"
+    },
+    {
+      "id": "W-msahj2co-zar4ql",
+      "a": "D2:K",
+      "b": "D3:A"
+    },
+    {
+      "id": "W-msahj3tt-he5pbh",
+      "a": "D3:A",
+      "b": "D4:K"
+    },
+    {
+      "id": "W-msahk9jr-04xgln",
+      "a": "D4:A",
+      "b": "SW1:2"
+    },
+    {
+      "id": "W-msahkbjw-851bpw",
+      "a": "D3:K",
+      "b": "SW1:2"
+    },
+    {
+      "id": "W-msahkdjy-9bqqx1",
+      "a": "D2:A",
+      "b": "SW1:3"
+    },
+    {
+      "id": "W-msahkfpg-1fb0c8",
+      "a": "D1:K",
+      "b": "SW1:3"
+    },
+    {
+      "id": "W-msahkuur-3v0wvm",
+      "a": "SW1:1",
+      "b": "C3:2"
+    }
+  ],
+  "counters": {
+    "P": 4,
+    "R": 3,
+    "Q": 1,
+    "C": 3,
+    "D": 4,
+    "SW": 2,
+    "IC": 1,
+    "VR": 3
+  },
+  "netColorOverrides": {},
+  "schematicSettings": {
+    "stickyComponents": true,
+    "gndDisplay": "symbol",
+    "componentGridSpacing": 6
+  },
+  "boardSettings": {
+    "maxColumns": 20,
+    "maxRows": 9,
+    "busSpacing": 1,
+    "spareRows": 0,
+    "componentOpacity": 1,
+    "avoidLinksOverComponents": true,
+    "allowDoubleLinks": true,
+    "autoDescribe": true,
+    "standingResistors": false
+  },
+  "routerMode": "xy",
+  "projectMeta": {
+    "name": "Generated Vero layout",
+    "description": "5K 5k, VR2 1M, 100K 100k\nQ1 is 3BX31C\nD1 - D2 & D4 are 1N4148\nD3 is 1N5819\n100K 2 to output\ninput to 5K 3",
+    "autoDescriptionLines": [
+      "5K 5k, VR2 1M, 100K 100k",
+      "Q1 is 3BX31C",
+      "D1 - D2 & D4 are 1N4148",
+      "D3 is 1N5819",
+      "100K 2 to output",
+      "input to 5K 3"
+    ],
+    "creator": "",
+    "displayCreator": false,
+    "verified": false
+  },
+  "veroLayout": {
+    "format": "Vero Designer saved layout",
+    "version": 1,
+    "columns": 11,
+    "rows": 8,
+    "placements": [
+      {
+        "componentId": "Q1",
+        "componentIdentity": "component:CMP-msah7kh2-h78zle",
+        "component": {
+          "id": "Q1",
+          "instanceUid": "CMP-msah7kh2-h78zle",
+          "type": "transistor",
+          "transistorKind": "npn",
+          "transistorPinout": [
+            "C",
+            "B",
+            "E"
+          ],
+          "value": "3BX31C",
+          "x": 840,
+          "y": 740,
+          "rotation": 90,
+          "mirrored": false,
+          "boardPinSources": {
+            "B": [
+              "Q1:B"
+            ],
+            "C": [
+              "Q1:C"
+            ],
+            "E": [
+              "Q1:E"
+            ]
+          }
+        },
+        "x": 1,
+        "y": 2,
+        "footprint": {
+          "key": "to92-flat-right-EBC",
+          "orientation": "to92-flat-right",
+          "width": 1,
+          "height": 3,
+          "pins": [
+            {
+              "logical": "E",
+              "physical": "E",
+              "x": 0,
+              "y": 0
+            },
+            {
+              "logical": "B",
+              "physical": "B",
+              "x": 0,
+              "y": 1
+            },
+            {
+              "logical": "C",
+              "physical": "C",
+              "x": 0,
+              "y": 2
+            }
+          ]
+        }
+      },
+      {
+        "componentId": "D3",
+        "componentIdentity": "component:CMP-msahiniv-3ltzcs",
+        "component": {
+          "id": "D3",
+          "instanceUid": "CMP-msahiniv-3ltzcs",
+          "type": "diode",
+          "diodeKind": "schottky",
+          "value": "1N5819",
+          "x": 560,
+          "y": 520,
+          "rotation": 180,
+          "mirrored": false,
+          "boardPinSources": {
+            "A": [
+              "D3:A"
+            ],
+            "K": [
+              "D3:K"
+            ]
+          }
+        },
+        "x": 7,
+        "y": 2,
+        "footprint": {
+          "key": "vertical-3-reversed",
+          "orientation": "vertical",
+          "width": 1,
+          "height": 4,
+          "pins": [
+            {
+              "logical": "K",
+              "physical": "K",
+              "x": 0,
+              "y": 0
+            },
+            {
+              "logical": "A",
+              "physical": "A",
+              "x": 0,
+              "y": 3
+            }
+          ]
+        }
+      },
+      {
+        "componentId": "D4",
+        "componentIdentity": "component:CMP-msahipk9-xuvgd1",
+        "component": {
+          "id": "D4",
+          "instanceUid": "CMP-msahipk9-xuvgd1",
+          "type": "diode",
+          "diodeKind": "standard",
+          "value": "1N4148",
+          "x": 560,
+          "y": 440,
+          "rotation": 0,
+          "mirrored": false,
+          "boardPinSources": {
+            "A": [
+              "D4:A"
+            ],
+            "K": [
+              "D4:K"
+            ]
+          }
+        },
+        "x": 5,
+        "y": 2,
+        "footprint": {
+          "key": "vertical-3-normal",
+          "orientation": "vertical",
+          "width": 1,
+          "height": 4,
+          "pins": [
+            {
+              "logical": "A",
+              "physical": "A",
+              "x": 0,
+              "y": 0
+            },
+            {
+              "logical": "K",
+              "physical": "K",
+              "x": 0,
+              "y": 3
+            }
+          ]
+        }
+      },
+      {
+        "componentId": "D1",
+        "componentIdentity": "component:CMP-msahihcc-bdxqwl",
+        "component": {
+          "id": "D1",
+          "instanceUid": "CMP-msahihcc-bdxqwl",
+          "type": "diode",
+          "diodeKind": "standard",
+          "value": "1N4148",
+          "x": 560,
+          "y": 720,
+          "rotation": 180,
+          "mirrored": false,
+          "boardPinSources": {
+            "A": [
+              "D1:A"
+            ],
+            "K": [
+              "D1:K"
+            ]
+          }
+        },
+        "x": 4,
+        "y": 3,
+        "footprint": {
+          "key": "vertical-2-reversed",
+          "orientation": "vertical",
+          "width": 1,
+          "height": 3,
+          "pins": [
+            {
+              "logical": "K",
+              "physical": "K",
+              "x": 0,
+              "y": 0
+            },
+            {
+              "logical": "A",
+              "physical": "A",
+              "x": 0,
+              "y": 2
+            }
+          ]
+        }
+      },
+      {
+        "componentId": "D2",
+        "componentIdentity": "component:CMP-msahikey-ut5i70",
+        "component": {
+          "id": "D2",
+          "instanceUid": "CMP-msahikey-ut5i70",
+          "type": "diode",
+          "diodeKind": "standard",
+          "value": "1N4148",
+          "x": 560,
+          "y": 640,
+          "rotation": 0,
+          "mirrored": false,
+          "boardPinSources": {
+            "A": [
+              "D2:A"
+            ],
+            "K": [
+              "D2:K"
+            ]
+          }
+        },
+        "x": 8,
+        "y": 3,
+        "footprint": {
+          "key": "vertical-2-normal",
+          "orientation": "vertical",
+          "width": 1,
+          "height": 3,
+          "pins": [
+            {
+              "logical": "A",
+              "physical": "A",
+              "x": 0,
+              "y": 0
+            },
+            {
+              "logical": "K",
+              "physical": "K",
+              "x": 0,
+              "y": 2
+            }
+          ]
+        }
+      },
+      {
+        "componentId": "R3",
+        "componentIdentity": "component:CMP-msah613e-o2maqv",
+        "component": {
+          "id": "R3",
+          "instanceUid": "CMP-msah613e-o2maqv",
+          "type": "resistor",
+          "value": "330Ω",
+          "x": 840,
+          "y": 1000,
+          "rotation": 0,
+          "mirrored": false,
+          "boardPinSources": {
+            "1": [
+              "R3:1"
+            ],
+            "2": [
+              "R3:2"
+            ]
+          }
+        },
+        "x": 3,
+        "y": 2,
+        "footprint": {
+          "key": "vertical-4-normal",
+          "orientation": "vertical",
+          "width": 1,
+          "height": 5,
+          "pins": [
+            {
+              "logical": "1",
+              "physical": "1",
+              "x": 0,
+              "y": 0
+            },
+            {
+              "logical": "2",
+              "physical": "2",
+              "x": 0,
+              "y": 4
+            }
+          ]
+        }
+      },
+      {
+        "componentId": "R1",
+        "componentIdentity": "component:CMP-msah5ri9-mx3uul",
+        "component": {
+          "id": "R1",
+          "instanceUid": "CMP-msah5ri9-mx3uul",
+          "type": "resistor",
+          "value": "68kΩ",
+          "x": 1180,
+          "y": 480,
+          "rotation": 90,
+          "mirrored": false,
+          "boardPinSources": {
+            "1": [
+              "R1:1"
+            ],
+            "2": [
+              "R1:2"
+            ]
+          }
+        },
+        "x": 6,
+        "y": 0,
+        "footprint": {
+          "key": "vertical-4-normal",
+          "orientation": "vertical",
+          "width": 1,
+          "height": 5,
+          "pins": [
+            {
+              "logical": "1",
+              "physical": "1",
+              "x": 0,
+              "y": 0
+            },
+            {
+              "logical": "2",
+              "physical": "2",
+              "x": 0,
+              "y": 4
+            }
+          ]
+        }
+      },
+      {
+        "componentId": "R2",
+        "componentIdentity": "component:CMP-msah5xic-zh26uc",
+        "component": {
+          "id": "R2",
+          "instanceUid": "CMP-msah5xic-zh26uc",
+          "type": "resistor",
+          "value": "220kΩ",
+          "x": 1020,
+          "y": 600,
+          "rotation": 0,
+          "mirrored": false,
+          "boardPinSources": {
+            "1": [
+              "R2:1"
+            ],
+            "2": [
+              "R2:2"
+            ]
+          }
+        },
+        "x": 9,
+        "y": 0,
+        "footprint": {
+          "key": "vertical-4-normal",
+          "orientation": "vertical",
+          "width": 1,
+          "height": 5,
+          "pins": [
+            {
+              "logical": "1",
+              "physical": "1",
+              "x": 0,
+              "y": 0
+            },
+            {
+              "logical": "2",
+              "physical": "2",
+              "x": 0,
+              "y": 4
+            }
+          ]
+        }
+      },
+      {
+        "componentId": "C1",
+        "componentIdentity": "component:CMP-msahbc5i-89voxw",
+        "component": {
+          "id": "C1",
+          "instanceUid": "CMP-msahbc5i-89voxw",
+          "type": "capacitor",
+          "value": "100nF",
+          "x": 1300,
+          "y": 1100,
+          "rotation": 0,
+          "mirrored": false,
+          "boardPinSources": {
+            "1": [
+              "C1:1"
+            ],
+            "2": [
+              "C1:2"
+            ]
+          }
+        },
+        "x": 2,
+        "y": 1,
+        "footprint": {
+          "key": "vertical-2-reversed",
+          "orientation": "vertical",
+          "width": 1,
+          "height": 3,
+          "pins": [
+            {
+              "logical": "2",
+              "physical": "2",
+              "x": 0,
+              "y": 0
+            },
+            {
+              "logical": "1",
+              "physical": "1",
+              "x": 0,
+              "y": 2
+            }
+          ]
+        }
+      },
+      {
+        "componentId": "C2",
+        "componentIdentity": "component:CMP-msahdkz6-218z1f",
+        "component": {
+          "id": "C2",
+          "instanceUid": "CMP-msahdkz6-218z1f",
+          "type": "capacitorPolarized",
+          "value": "0.1µF",
+          "x": 680,
+          "y": 900,
+          "rotation": 180,
+          "mirrored": false,
+          "boardPinSources": {
+            "+": [
+              "C2:+"
+            ],
+            "−": [
+              "C2:−"
+            ]
+          }
+        },
+        "x": 0,
+        "y": 4,
+        "footprint": {
+          "key": "vertical-1-normal",
+          "orientation": "vertical",
+          "width": 1,
+          "height": 2,
+          "pins": [
+            {
+              "logical": "+",
+              "physical": "+",
+              "x": 0,
+              "y": 0
+            },
+            {
+              "logical": "−",
+              "physical": "−",
+              "x": 0,
+              "y": 1
+            }
+          ]
+        }
+      },
+      {
+        "componentId": "C3",
+        "componentIdentity": "component:CMP-msahhhfz-8bw2rq",
+        "component": {
+          "id": "C3",
+          "instanceUid": "CMP-msahhhfz-8bw2rq",
+          "type": "capacitor",
+          "value": "0.47nF",
+          "x": 440,
+          "y": 1160,
+          "rotation": 0,
+          "mirrored": false,
+          "boardPinSources": {
+            "1": [
+              "C3:1"
+            ],
+            "2": [
+              "C3:2"
+            ]
+          }
+        },
+        "x": 1,
+        "y": 6,
+        "footprint": {
+          "key": "vertical-1-reversed",
+          "orientation": "vertical",
+          "width": 1,
+          "height": 2,
+          "pins": [
+            {
+              "logical": "2",
+              "physical": "2",
+              "x": 0,
+              "y": 0
+            },
+            {
+              "logical": "1",
+              "physical": "1",
+              "x": 0,
+              "y": 1
+            }
+          ]
+        }
+      }
+    ],
+    "sourcePlacements": [
+      {
+        "componentId": "Q1",
+        "componentIdentity": "component:CMP-msah7kh2-h78zle",
+        "component": {
+          "id": "Q1",
+          "instanceUid": "CMP-msah7kh2-h78zle",
+          "type": "transistor",
+          "transistorKind": "npn",
+          "transistorPinout": [
+            "C",
+            "B",
+            "E"
+          ],
+          "value": "3BX31C",
+          "x": 840,
+          "y": 740,
+          "rotation": 90,
+          "mirrored": false,
+          "boardPinSources": {
+            "B": [
+              "Q1:B"
+            ],
+            "C": [
+              "Q1:C"
+            ],
+            "E": [
+              "Q1:E"
+            ]
+          }
+        },
+        "x": 2,
+        "y": 2,
+        "footprint": {
+          "key": "to92-flat-right-EBC",
+          "orientation": "to92-flat-right",
+          "width": 1,
+          "height": 3,
+          "pins": [
+            {
+              "logical": "E",
+              "physical": "E",
+              "x": 0,
+              "y": 0
+            },
+            {
+              "logical": "B",
+              "physical": "B",
+              "x": 0,
+              "y": 1
+            },
+            {
+              "logical": "C",
+              "physical": "C",
+              "x": 0,
+              "y": 2
+            }
+          ]
+        }
+      },
+      {
+        "componentId": "D3",
+        "componentIdentity": "component:CMP-msahiniv-3ltzcs",
+        "component": {
+          "id": "D3",
+          "instanceUid": "CMP-msahiniv-3ltzcs",
+          "type": "diode",
+          "diodeKind": "schottky",
+          "value": "1N5819",
+          "x": 560,
+          "y": 520,
+          "rotation": 180,
+          "mirrored": false,
+          "boardPinSources": {
+            "A": [
+              "D3:A"
+            ],
+            "K": [
+              "D3:K"
+            ]
+          }
+        },
+        "x": 8,
+        "y": 2,
+        "footprint": {
+          "key": "vertical-3-reversed",
+          "orientation": "vertical",
+          "width": 1,
+          "height": 4,
+          "pins": [
+            {
+              "logical": "K",
+              "physical": "K",
+              "x": 0,
+              "y": 0
+            },
+            {
+              "logical": "A",
+              "physical": "A",
+              "x": 0,
+              "y": 3
+            }
+          ]
+        }
+      },
+      {
+        "componentId": "D4",
+        "componentIdentity": "component:CMP-msahipk9-xuvgd1",
+        "component": {
+          "id": "D4",
+          "instanceUid": "CMP-msahipk9-xuvgd1",
+          "type": "diode",
+          "diodeKind": "standard",
+          "value": "1N4148",
+          "x": 560,
+          "y": 440,
+          "rotation": 0,
+          "mirrored": false,
+          "boardPinSources": {
+            "A": [
+              "D4:A"
+            ],
+            "K": [
+              "D4:K"
+            ]
+          }
+        },
+        "x": 6,
+        "y": 2,
+        "footprint": {
+          "key": "vertical-3-normal",
+          "orientation": "vertical",
+          "width": 1,
+          "height": 4,
+          "pins": [
+            {
+              "logical": "A",
+              "physical": "A",
+              "x": 0,
+              "y": 0
+            },
+            {
+              "logical": "K",
+              "physical": "K",
+              "x": 0,
+              "y": 3
+            }
+          ]
+        }
+      },
+      {
+        "componentId": "D1",
+        "componentIdentity": "component:CMP-msahihcc-bdxqwl",
+        "component": {
+          "id": "D1",
+          "instanceUid": "CMP-msahihcc-bdxqwl",
+          "type": "diode",
+          "diodeKind": "standard",
+          "value": "1N4148",
+          "x": 560,
+          "y": 720,
+          "rotation": 180,
+          "mirrored": false,
+          "boardPinSources": {
+            "A": [
+              "D1:A"
+            ],
+            "K": [
+              "D1:K"
+            ]
+          }
+        },
+        "x": 5,
+        "y": 3,
+        "footprint": {
+          "key": "vertical-2-reversed",
+          "orientation": "vertical",
+          "width": 1,
+          "height": 3,
+          "pins": [
+            {
+              "logical": "K",
+              "physical": "K",
+              "x": 0,
+              "y": 0
+            },
+            {
+              "logical": "A",
+              "physical": "A",
+              "x": 0,
+              "y": 2
+            }
+          ]
+        }
+      },
+      {
+        "componentId": "D2",
+        "componentIdentity": "component:CMP-msahikey-ut5i70",
+        "component": {
+          "id": "D2",
+          "instanceUid": "CMP-msahikey-ut5i70",
+          "type": "diode",
+          "diodeKind": "standard",
+          "value": "1N4148",
+          "x": 560,
+          "y": 640,
+          "rotation": 0,
+          "mirrored": false,
+          "boardPinSources": {
+            "A": [
+              "D2:A"
+            ],
+            "K": [
+              "D2:K"
+            ]
+          }
+        },
+        "x": 9,
+        "y": 3,
+        "footprint": {
+          "key": "vertical-2-normal",
+          "orientation": "vertical",
+          "width": 1,
+          "height": 3,
+          "pins": [
+            {
+              "logical": "A",
+              "physical": "A",
+              "x": 0,
+              "y": 0
+            },
+            {
+              "logical": "K",
+              "physical": "K",
+              "x": 0,
+              "y": 2
+            }
+          ]
+        }
+      },
+      {
+        "componentId": "R3",
+        "componentIdentity": "component:CMP-msah613e-o2maqv",
+        "component": {
+          "id": "R3",
+          "instanceUid": "CMP-msah613e-o2maqv",
+          "type": "resistor",
+          "value": "330Ω",
+          "x": 840,
+          "y": 1000,
+          "rotation": 0,
+          "mirrored": false,
+          "boardPinSources": {
+            "1": [
+              "R3:1"
+            ],
+            "2": [
+              "R3:2"
+            ]
+          }
+        },
+        "x": 4,
+        "y": 2,
+        "footprint": {
+          "key": "vertical-4-normal",
+          "orientation": "vertical",
+          "width": 1,
+          "height": 5,
+          "pins": [
+            {
+              "logical": "1",
+              "physical": "1",
+              "x": 0,
+              "y": 0
+            },
+            {
+              "logical": "2",
+              "physical": "2",
+              "x": 0,
+              "y": 4
+            }
+          ]
+        }
+      },
+      {
+        "componentId": "R1",
+        "componentIdentity": "component:CMP-msah5ri9-mx3uul",
+        "component": {
+          "id": "R1",
+          "instanceUid": "CMP-msah5ri9-mx3uul",
+          "type": "resistor",
+          "value": "68kΩ",
+          "x": 1180,
+          "y": 480,
+          "rotation": 90,
+          "mirrored": false,
+          "boardPinSources": {
+            "1": [
+              "R1:1"
+            ],
+            "2": [
+              "R1:2"
+            ]
+          }
+        },
+        "x": 7,
+        "y": 0,
+        "footprint": {
+          "key": "vertical-4-normal",
+          "orientation": "vertical",
+          "width": 1,
+          "height": 5,
+          "pins": [
+            {
+              "logical": "1",
+              "physical": "1",
+              "x": 0,
+              "y": 0
+            },
+            {
+              "logical": "2",
+              "physical": "2",
+              "x": 0,
+              "y": 4
+            }
+          ]
+        }
+      },
+      {
+        "componentId": "R2",
+        "componentIdentity": "component:CMP-msah5xic-zh26uc",
+        "component": {
+          "id": "R2",
+          "instanceUid": "CMP-msah5xic-zh26uc",
+          "type": "resistor",
+          "value": "220kΩ",
+          "x": 1020,
+          "y": 600,
+          "rotation": 0,
+          "mirrored": false,
+          "boardPinSources": {
+            "1": [
+              "R2:1"
+            ],
+            "2": [
+              "R2:2"
+            ]
+          }
+        },
+        "x": 10,
+        "y": 0,
+        "footprint": {
+          "key": "vertical-4-normal",
+          "orientation": "vertical",
+          "width": 1,
+          "height": 5,
+          "pins": [
+            {
+              "logical": "1",
+              "physical": "1",
+              "x": 0,
+              "y": 0
+            },
+            {
+              "logical": "2",
+              "physical": "2",
+              "x": 0,
+              "y": 4
+            }
+          ]
+        }
+      },
+      {
+        "componentId": "C1",
+        "componentIdentity": "component:CMP-msahbc5i-89voxw",
+        "component": {
+          "id": "C1",
+          "instanceUid": "CMP-msahbc5i-89voxw",
+          "type": "capacitor",
+          "value": "100nF",
+          "x": 1300,
+          "y": 1100,
+          "rotation": 0,
+          "mirrored": false,
+          "boardPinSources": {
+            "1": [
+              "C1:1"
+            ],
+            "2": [
+              "C1:2"
+            ]
+          }
+        },
+        "x": 3,
+        "y": 1,
+        "footprint": {
+          "key": "vertical-2-reversed",
+          "orientation": "vertical",
+          "width": 1,
+          "height": 3,
+          "pins": [
+            {
+              "logical": "2",
+              "physical": "2",
+              "x": 0,
+              "y": 0
+            },
+            {
+              "logical": "1",
+              "physical": "1",
+              "x": 0,
+              "y": 2
+            }
+          ]
+        }
+      },
+      {
+        "componentId": "C2",
+        "componentIdentity": "component:CMP-msahdkz6-218z1f",
+        "component": {
+          "id": "C2",
+          "instanceUid": "CMP-msahdkz6-218z1f",
+          "type": "capacitorPolarized",
+          "value": "0.1µF",
+          "x": 680,
+          "y": 900,
+          "rotation": 180,
+          "mirrored": false,
+          "boardPinSources": {
+            "+": [
+              "C2:+"
+            ],
+            "−": [
+              "C2:−"
+            ]
+          }
+        },
+        "x": 1,
+        "y": 4,
+        "footprint": {
+          "key": "vertical-1-normal",
+          "orientation": "vertical",
+          "width": 1,
+          "height": 2,
+          "pins": [
+            {
+              "logical": "+",
+              "physical": "+",
+              "x": 0,
+              "y": 0
+            },
+            {
+              "logical": "−",
+              "physical": "−",
+              "x": 0,
+              "y": 1
+            }
+          ]
+        }
+      },
+      {
+        "componentId": "C3",
+        "componentIdentity": "component:CMP-msahhhfz-8bw2rq",
+        "component": {
+          "id": "C3",
+          "instanceUid": "CMP-msahhhfz-8bw2rq",
+          "type": "capacitor",
+          "value": "0.47nF",
+          "x": 440,
+          "y": 1160,
+          "rotation": 0,
+          "mirrored": false,
+          "boardPinSources": {
+            "1": [
+              "C3:1"
+            ],
+            "2": [
+              "C3:2"
+            ]
+          }
+        },
+        "x": 2,
+        "y": 6,
+        "footprint": {
+          "key": "vertical-1-reversed",
+          "orientation": "vertical",
+          "width": 1,
+          "height": 2,
+          "pins": [
+            {
+              "logical": "2",
+              "physical": "2",
+              "x": 0,
+              "y": 0
+            },
+            {
+              "logical": "1",
+              "physical": "1",
+              "x": 0,
+              "y": 1
+            }
+          ]
+        }
+      }
+    ],
+    "routes": [
+      {
+        "node": "GND link 1",
+        "fromSegment": "M10",
+        "toSegment": "M12",
+        "isRoutingBusLink": false,
+        "schematicNetIndex": 0,
+        "schematicNetIdentity": "[\"component:CMP-msah4npu-o44hrj:1\",\"component:CMP-msah613e-o2maqv:2\",\"component:CMP-msah68c0-tdl744:1\",\"component:CMP-msahhhfz-8bw2rq:2\",\"component:CMP-msahjdxd-ai8yzt:1\"]",
+        "netName": "GND",
+        "points": [
+          {
+            "x": 9,
+            "y": 6
+          },
+          {
+            "x": 9,
+            "y": 7
+          }
+        ]
+      }
+    ],
+    "cuts": [
+      {
+        "x": 4,
+        "y": 2,
+        "hole": 4
+      },
+      {
+        "x": 3,
+        "y": 3,
+        "hole": 3
+      },
+      {
+        "x": 7,
+        "y": 0,
+        "hole": 7
+      },
+      {
+        "x": 5,
+        "y": 7,
+        "hole": 5
+      }
+    ],
+    "terminals": [
+      {
+        "componentId": "P2",
+        "componentIdentity": "component:CMP-msah4npu-o44hrj",
+        "component": {
+          "id": "P2",
+          "instanceUid": "CMP-msah4npu-o44hrj",
+          "type": "terminal",
+          "netScope": "offboard",
+          "value": "GND",
+          "x": 1100,
+          "y": 1160,
+          "rotation": 0,
+          "mirrored": false
+        },
+        "schematicNetIndex": 0,
+        "schematicNetIdentity": "[\"component:CMP-msah4npu-o44hrj:1\",\"component:CMP-msah613e-o2maqv:2\",\"component:CMP-msah68c0-tdl744:1\",\"component:CMP-msahhhfz-8bw2rq:2\",\"component:CMP-msahjdxd-ai8yzt:1\"]",
+        "netName": "GND",
+        "side": "left",
+        "row": 6,
+        "pinName": "1",
+        "pinNames": [
+          "1"
+        ],
+        "controlName": "GND",
+        "isGroupedPotentiometerPins": false,
+        "labelOffset": 0,
+        "isOffboardControl": false,
+        "key": "P2",
+        "label": "GND"
+      },
+      {
+        "componentId": "P1",
+        "componentIdentity": "component:CMP-msah4j08-4r27nt",
+        "component": {
+          "id": "P1",
+          "instanceUid": "CMP-msah4j08-4r27nt",
+          "type": "terminal",
+          "netScope": "offboard",
+          "value": "9V",
+          "x": 1180,
+          "y": 320,
+          "rotation": 0,
+          "mirrored": false
+        },
+        "schematicNetIndex": 1,
+        "schematicNetIdentity": "[\"component:CMP-msah4j08-4r27nt:1\",\"component:CMP-msah5ri9-mx3uul:1\"]",
+        "netName": "9V",
+        "side": "left",
+        "row": 0,
+        "pinName": "1",
+        "pinNames": [
+          "1"
+        ],
+        "controlName": "9V",
+        "isGroupedPotentiometerPins": false,
+        "labelOffset": 0,
+        "isOffboardControl": false,
+        "key": "P1",
+        "label": "9V"
+      },
+      {
+        "componentId": "VR2",
+        "componentIdentity": "component:CMP-msah6aha-3ojhwp",
+        "component": {
+          "id": "VR2",
+          "instanceUid": "CMP-msah6aha-3ojhwp",
+          "type": "potentiometer",
+          "potType": "pot",
+          "potResistance": "1M",
+          "value": "VR2",
+          "x": 800,
+          "y": 480,
+          "rotation": 0,
+          "mirrored": false
+        },
+        "schematicNetIndex": 9,
+        "schematicNetIdentity": "[\"component:CMP-msah6aha-3ojhwp:2\",\"component:CMP-msah7kh2-h78zle:B\",\"component:CMP-msahbc5i-89voxw:1\"]",
+        "netName": "N006",
+        "side": "left",
+        "row": 3,
+        "pinName": "2",
+        "pinNames": [
+          "2"
+        ],
+        "controlName": "VR2",
+        "isGroupedPotentiometerPins": false,
+        "labelOffset": 0,
+        "isOffboardControl": true,
+        "key": "VR2:2",
+        "label": "VR2 2"
+      },
+      {
+        "componentId": "VR3",
+        "componentIdentity": "component:CMP-msah6cd9-hg0s5o",
+        "component": {
+          "id": "VR3",
+          "instanceUid": "CMP-msah6cd9-hg0s5o",
+          "type": "potentiometer",
+          "potType": "pot",
+          "potResistance": "100k",
+          "value": "100K",
+          "x": 380,
+          "y": 900,
+          "rotation": 0,
+          "mirrored": false
+        },
+        "schematicNetIndex": 11,
+        "schematicNetIdentity": "[\"component:CMP-msah6cd9-hg0s5o:3\",\"component:CMP-msahdkz6-218z1f:−\",\"component:CMP-msahihcc-bdxqwl:A\",\"component:CMP-msahikey-ut5i70:K\",\"component:CMP-msahiniv-3ltzcs:A\",\"component:CMP-msahipk9-xuvgd1:K\"]",
+        "netName": "N008",
+        "side": "right",
+        "row": 5,
+        "pinName": "3",
+        "pinNames": [
+          "3"
+        ],
+        "controlName": "100K",
+        "isGroupedPotentiometerPins": false,
+        "labelOffset": 0,
+        "isOffboardControl": true,
+        "key": "VR3:3",
+        "label": "100K 3"
+      },
+      {
+        "componentId": "SW1",
+        "componentIdentity": "component:CMP-msahjdxd-ai8yzt",
+        "component": {
+          "id": "SW1",
+          "instanceUid": "CMP-msahjdxd-ai8yzt",
+          "type": "switch",
+          "switchKind": "spdt",
+          "value": "switch1",
+          "x": 200,
+          "y": 540,
+          "rotation": 0,
+          "mirrored": false
+        },
+        "schematicNetIndex": 13,
+        "schematicNetIdentity": "[\"component:CMP-msahiniv-3ltzcs:K\",\"component:CMP-msahipk9-xuvgd1:A\",\"component:CMP-msahjdxd-ai8yzt:2\"]",
+        "netName": "N010",
+        "side": "right",
+        "row": 2,
+        "pinName": "2",
+        "pinNames": [
+          "2"
+        ],
+        "controlName": "switch1",
+        "isGroupedPotentiometerPins": false,
+        "labelOffset": 0,
+        "isOffboardControl": true,
+        "key": "SW1:2",
+        "label": "switch1 2"
+      },
+      {
+        "componentId": "SW1",
+        "componentIdentity": "component:CMP-msahjdxd-ai8yzt",
+        "component": {
+          "id": "SW1",
+          "instanceUid": "CMP-msahjdxd-ai8yzt",
+          "type": "switch",
+          "switchKind": "spdt",
+          "value": "switch1",
+          "x": 200,
+          "y": 540,
+          "rotation": 0,
+          "mirrored": false
+        },
+        "schematicNetIndex": 12,
+        "schematicNetIdentity": "[\"component:CMP-msahihcc-bdxqwl:K\",\"component:CMP-msahikey-ut5i70:A\",\"component:CMP-msahjdxd-ai8yzt:3\"]",
+        "netName": "N009",
+        "side": "right",
+        "row": 3,
+        "pinName": "3",
+        "pinNames": [
+          "3"
+        ],
+        "controlName": "switch1",
+        "isGroupedPotentiometerPins": false,
+        "labelOffset": 0,
+        "isOffboardControl": true,
+        "key": "SW1:3",
+        "label": "switch1 3"
+      },
+      {
+        "componentId": "VR2",
+        "componentIdentity": "component:CMP-msah6aha-3ojhwp",
+        "component": {
+          "id": "VR2",
+          "instanceUid": "CMP-msah6aha-3ojhwp",
+          "type": "potentiometer",
+          "potType": "pot",
+          "potResistance": "1M",
+          "value": "VR2",
+          "x": 800,
+          "y": 480,
+          "rotation": 0,
+          "mirrored": false
+        },
+        "schematicNetIndex": 5,
+        "schematicNetIdentity": "[\"component:CMP-msah5xic-zh26uc:1\",\"component:CMP-msah6aha-3ojhwp:3\"]",
+        "netName": "N002",
+        "side": "right",
+        "row": 0,
+        "pinName": "3",
+        "pinNames": [
+          "3"
+        ],
+        "controlName": "VR2",
+        "isGroupedPotentiometerPins": false,
+        "labelOffset": 0,
+        "isOffboardControl": true,
+        "key": "VR2:3",
+        "label": "VR2 3"
+      },
+      {
+        "componentId": "VR1",
+        "componentIdentity": "component:CMP-msah68c0-tdl744",
+        "component": {
+          "id": "VR1",
+          "instanceUid": "CMP-msah68c0-tdl744",
+          "type": "potentiometer",
+          "potType": "pot",
+          "potResistance": "5k",
+          "value": "5K",
+          "x": 1360,
+          "y": 860,
+          "rotation": 0,
+          "mirrored": false
+        },
+        "schematicNetIndex": 0,
+        "schematicNetIdentity": "[\"component:CMP-msah4npu-o44hrj:1\",\"component:CMP-msah613e-o2maqv:2\",\"component:CMP-msah68c0-tdl744:1\",\"component:CMP-msahhhfz-8bw2rq:2\",\"component:CMP-msahjdxd-ai8yzt:1\"]",
+        "netName": "GND",
+        "side": "right",
+        "row": 6,
+        "pinName": "1",
+        "pinNames": [
+          "1"
+        ],
+        "controlName": "5K",
+        "isGroupedPotentiometerPins": false,
+        "labelOffset": 0,
+        "isOffboardControl": true,
+        "key": "VR1:1",
+        "label": "5K 1"
+      },
+      {
+        "componentId": "SW1",
+        "componentIdentity": "component:CMP-msahjdxd-ai8yzt",
+        "component": {
+          "id": "SW1",
+          "instanceUid": "CMP-msahjdxd-ai8yzt",
+          "type": "switch",
+          "switchKind": "spdt",
+          "value": "switch1",
+          "x": 200,
+          "y": 540,
+          "rotation": 0,
+          "mirrored": false
+        },
+        "schematicNetIndex": 0,
+        "schematicNetIdentity": "[\"component:CMP-msah4npu-o44hrj:1\",\"component:CMP-msah613e-o2maqv:2\",\"component:CMP-msah68c0-tdl744:1\",\"component:CMP-msahhhfz-8bw2rq:2\",\"component:CMP-msahjdxd-ai8yzt:1\"]",
+        "netName": "GND",
+        "side": "right",
+        "row": 7,
+        "pinName": "1",
+        "pinNames": [
+          "1"
+        ],
+        "controlName": "switch1",
+        "isGroupedPotentiometerPins": false,
+        "labelOffset": 0,
+        "isOffboardControl": true,
+        "key": "SW1:1",
+        "label": "switch1 1"
+      },
+      {
+        "componentId": "VR1",
+        "componentIdentity": "component:CMP-msah68c0-tdl744",
+        "component": {
+          "id": "VR1",
+          "instanceUid": "CMP-msah68c0-tdl744",
+          "type": "potentiometer",
+          "potType": "pot",
+          "potResistance": "5k",
+          "value": "5K",
+          "x": 1360,
+          "y": 860,
+          "rotation": 0,
+          "mirrored": false
+        },
+        "schematicNetIndex": 7,
+        "schematicNetIdentity": "[\"component:CMP-msah68c0-tdl744:2\",\"component:CMP-msahbc5i-89voxw:2\"]",
+        "netName": "N004",
+        "side": "left",
+        "row": 1,
+        "pinName": "2",
+        "pinNames": [
+          "2"
+        ],
+        "controlName": "5K",
+        "isGroupedPotentiometerPins": false,
+        "labelOffset": 0,
+        "isOffboardControl": true,
+        "key": "VR1:2",
+        "label": "5K 2"
+      },
+      {
+        "componentId": "VR3",
+        "componentIdentity": "component:CMP-msah6cd9-hg0s5o",
+        "component": {
+          "id": "VR3",
+          "instanceUid": "CMP-msah6cd9-hg0s5o",
+          "type": "potentiometer",
+          "potType": "pot",
+          "potResistance": "100k",
+          "value": "100K",
+          "x": 380,
+          "y": 900,
+          "rotation": 0,
+          "mirrored": false
+        },
+        "schematicNetIndex": 10,
+        "schematicNetIdentity": "[\"component:CMP-msah6cd9-hg0s5o:1\",\"component:CMP-msahhhfz-8bw2rq:1\"]",
+        "netName": "N007",
+        "side": "left",
+        "row": 7,
+        "pinName": "1",
+        "pinNames": [
+          "1"
+        ],
+        "controlName": "100K",
+        "isGroupedPotentiometerPins": false,
+        "labelOffset": 0,
+        "isOffboardControl": true,
+        "key": "VR3:1",
+        "label": "100K 1"
+      }
+    ],
+    "autoDescriptionLines": [
+      "5K 5k, VR2 1M, 100K 100k",
+      "Q1 is 3BX31C",
+      "D1 - D2 & D4 are 1N4148",
+      "D3 is 1N5819",
+      "100K 2 to output",
+      "input to 5K 3"
+    ],
+    "schematicStructureSignature": "{\"components\":[{\"identity\":\"component:CMP-msah4j08-4r27nt\",\"type\":\"terminal\",\"pins\":[\"1\"],\"scope\":\"offboard\"},{\"identity\":\"component:CMP-msah4npu-o44hrj\",\"type\":\"terminal\",\"pins\":[\"1\"],\"scope\":\"offboard\"},{\"identity\":\"component:CMP-msah5ri9-mx3uul\",\"type\":\"resistor\",\"pins\":[\"1\",\"2\"]},{\"identity\":\"component:CMP-msah5xic-zh26uc\",\"type\":\"resistor\",\"pins\":[\"1\",\"2\"]},{\"identity\":\"component:CMP-msah613e-o2maqv\",\"type\":\"resistor\",\"pins\":[\"1\",\"2\"]},{\"identity\":\"component:CMP-msah68c0-tdl744\",\"type\":\"potentiometer\",\"pins\":[\"1\",\"2\",\"3\"],\"potType\":\"pot\"},{\"identity\":\"component:CMP-msah6aha-3ojhwp\",\"type\":\"potentiometer\",\"pins\":[\"1\",\"2\",\"3\"],\"potType\":\"pot\"},{\"identity\":\"component:CMP-msah6cd9-hg0s5o\",\"type\":\"potentiometer\",\"pins\":[\"1\",\"2\",\"3\"],\"potType\":\"pot\"},{\"identity\":\"component:CMP-msah7kh2-h78zle\",\"type\":\"transistor\",\"pins\":[\"B\",\"C\",\"E\"],\"transistorKind\":\"npn\",\"leadOrder\":[\"C\",\"B\",\"E\"]},{\"identity\":\"component:CMP-msahakmj-o1gxp3\",\"type\":\"terminal\",\"pins\":[\"1\"],\"scope\":\"offboard\"},{\"identity\":\"component:CMP-msahbc5i-89voxw\",\"type\":\"capacitor\",\"pins\":[\"1\",\"2\"]},{\"identity\":\"component:CMP-msahdkz6-218z1f\",\"type\":\"capacitorPolarized\",\"pins\":[\"+\",\"−\"]},{\"identity\":\"component:CMP-msahglp4-o9brsx\",\"type\":\"terminal\",\"pins\":[\"1\"],\"scope\":\"offboard\"},{\"identity\":\"component:CMP-msahhhfz-8bw2rq\",\"type\":\"capacitor\",\"pins\":[\"1\",\"2\"]},{\"identity\":\"component:CMP-msahihcc-bdxqwl\",\"type\":\"diode\",\"pins\":[\"A\",\"K\"]},{\"identity\":\"component:CMP-msahikey-ut5i70\",\"type\":\"diode\",\"pins\":[\"A\",\"K\"]},{\"identity\":\"component:CMP-msahiniv-3ltzcs\",\"type\":\"diode\",\"pins\":[\"A\",\"K\"]},{\"identity\":\"component:CMP-msahipk9-xuvgd1\",\"type\":\"diode\",\"pins\":[\"A\",\"K\"]},{\"identity\":\"component:CMP-msahjdxd-ai8yzt\",\"type\":\"switch\",\"pins\":[\"1\",\"2\",\"3\"],\"switchKind\":\"spdt\"}],\"wires\":[\"component:CMP-msah4j08-4r27nt:1|component:CMP-msah5ri9-mx3uul:1\",\"component:CMP-msah4npu-o44hrj:1|component:CMP-msah613e-o2maqv:2\",\"component:CMP-msah4npu-o44hrj:1|component:CMP-msah68c0-tdl744:1\",\"component:CMP-msah4npu-o44hrj:1|component:CMP-msahhhfz-8bw2rq:2\",\"component:CMP-msah5ri9-mx3uul:2|component:CMP-msah5xic-zh26uc:2\",\"component:CMP-msah5ri9-mx3uul:2|component:CMP-msah7kh2-h78zle:C\",\"component:CMP-msah5xic-zh26uc:1|component:CMP-msah6aha-3ojhwp:3\",\"component:CMP-msah613e-o2maqv:1|component:CMP-msah7kh2-h78zle:E\",\"component:CMP-msah68c0-tdl744:2|component:CMP-msahbc5i-89voxw:2\",\"component:CMP-msah68c0-tdl744:3|component:CMP-msahakmj-o1gxp3:1\",\"component:CMP-msah6aha-3ojhwp:2|component:CMP-msah7kh2-h78zle:B\",\"component:CMP-msah6cd9-hg0s5o:1|component:CMP-msahhhfz-8bw2rq:1\",\"component:CMP-msah6cd9-hg0s5o:2|component:CMP-msahglp4-o9brsx:1\",\"component:CMP-msah6cd9-hg0s5o:3|component:CMP-msahdkz6-218z1f:−\",\"component:CMP-msah7kh2-h78zle:B|component:CMP-msahbc5i-89voxw:1\",\"component:CMP-msah7kh2-h78zle:C|component:CMP-msahdkz6-218z1f:+\",\"component:CMP-msahdkz6-218z1f:−|component:CMP-msahihcc-bdxqwl:A\",\"component:CMP-msahhhfz-8bw2rq:2|component:CMP-msahjdxd-ai8yzt:1\",\"component:CMP-msahihcc-bdxqwl:A|component:CMP-msahikey-ut5i70:K\",\"component:CMP-msahihcc-bdxqwl:K|component:CMP-msahjdxd-ai8yzt:3\",\"component:CMP-msahikey-ut5i70:A|component:CMP-msahjdxd-ai8yzt:3\",\"component:CMP-msahikey-ut5i70:K|component:CMP-msahiniv-3ltzcs:A\",\"component:CMP-msahiniv-3ltzcs:A|component:CMP-msahipk9-xuvgd1:K\",\"component:CMP-msahiniv-3ltzcs:K|component:CMP-msahjdxd-ai8yzt:2\",\"component:CMP-msahipk9-xuvgd1:A|component:CMP-msahjdxd-ai8yzt:2\"]}",
+    "manualEdited": false
+  }
+}

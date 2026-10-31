@@ -1,0 +1,46 @@
+:root { font-family: Inter, ui-sans-serif, system-ui, sans-serif; color: #20242b; background: #f3f5f7; }
+* { box-sizing: border-box; }
+body { margin: 0; }
+button, .open-button { border: 1px solid #cbd1d8; background: white; color: #222; border-radius: 7px; padding: 9px 12px; font: inherit; cursor: pointer; }
+button:disabled { opacity: .45; cursor: not-allowed; }
+.app { min-height: 100vh; display: flex; flex-direction: column; }
+.topbar { display:flex; align-items:center; gap:10px; padding:14px 18px; background:#fff; border-bottom:1px solid #dfe3e8; }
+.brand { font-weight:750; font-size:20px; }.sub { font-size:12px; color:#707985; margin-top:2px; }
+.topbar > div { margin-right:auto; }.open-button input { display:none; }
+.toolbar { display:flex; gap:8px; padding:10px 18px; border-bottom:1px solid #dfe3e8; background:#fafbfc; flex-wrap:wrap; }
+.workspace { flex:1; display:grid; grid-template-columns:230px minmax(0,1fr); min-height:400px; }
+.tracks { padding:16px 12px; background:#fff; border-right:1px solid #dfe3e8; }
+.tracks h3 { margin:0 0 12px; font-size:13px; text-transform:uppercase; letter-spacing:.06em; color:#69727e; }
+.track { display:flex; width:100%; justify-content:space-between; text-align:left; margin-bottom:6px; gap:8px; }
+.track small { color:#78818c; white-space:nowrap; }.track.selected { border-color:#39946a; background:#edf8f1; }
+.score-area { min-width:0; padding:18px; }.score-heading { display:flex; justify-content:space-between; align-items:center; gap:12px; margin-bottom:14px; }
+.score-heading h2 { margin:0; font-size:20px; }.score-heading p,.score-heading span,.muted { color:#737d89; font-size:13px; }
+.score-scroll { background:#fff; border:1px solid #e0e4e9; border-radius:9px; min-height:480px; padding:16px; overflow:auto; }
+.score { min-height:440px; }
+footer { display:flex; justify-content:space-between; gap:12px; padding:10px 18px; background:#fff; border-top:1px solid #dfe3e8; color:#68727e; font-size:12px; }
+@media (max-width:700px) { .workspace { grid-template-columns:1fr; }.tracks { border-right:0; border-bottom:1px solid #dfe3e8; }.topbar { flex-wrap:wrap; }.topbar > div { width:100%; } }
+@media print {
+  :root, body { background:white; }
+  .topbar, .toolbar, .tracks, footer, .score-heading { display:none !important; }
+  .workspace { display:block; min-height:0; }
+  .score-area { padding:0; }
+  .score-scroll { border:0; overflow:visible; padding:0; }
+  .score { min-height:0; }
+  @page { size:A4 portrait; margin:12mm; }
+}
+/* 현재 재생 중인 마디 */
+.at-cursor-bar {
+  background: rgba(255, 220, 50, 0.12);
+}
+
+/* 현재 재생 중인 박자 */
+.at-cursor-beat {
+  background: rgba(255, 80, 50, 0.75);
+  width: 3px;
+}
+
+/* 현재 재생 중인 음표 강조 */
+.at-highlight * {
+  fill: #ff5050;
+  stroke: #ff5050;
+}
