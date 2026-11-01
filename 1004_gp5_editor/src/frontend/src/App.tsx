@@ -1,5 +1,9 @@
 import { useEffect, useRef, useState } from 'react'
 import * as alphaTab from '@coderline/alphatab'
+import { findEditableNote, type EditableNote, type EditingState } from './noteEditing'
+import { historyShortcut } from './historyShortcut'
+import { createConstantBarCursor } from './constantBarCursor'
+import { DEFAULT_SOUND_FONT, DEFAULT_SOUND_FONT_NAME, readSoundFont, replaceSoundFont } from './soundFont'
 
 const API = import.meta.env.VITE_API_BASE || 'http://127.0.0.1:8000'
 
@@ -8,11 +12,85 @@ type Song = { sessionId: string; title: string; artist: string; tempo: number; t
 
 export default function App() {
   const scoreRef = useRef<HTMLDivElement>(null)
+  const scoreCanvasRef = useRef<HTMLDivElement>(null)
+  const fretInputRef = useRef<HTMLInputElement>(null)
   const apiRef = useRef<any>(null)
   const [song, setSong] = useState<Song | null>(null)
   const [selectedTrack, setSelectedTrack] = useState(0)
   const [status, setStatus] = useState('Open a Guitar Pro file to begin.')
   const [busy, setBusy] = useState(false)
+  const [editing, setEditing] = useState<EditingState | null>(null)
+  const [selectedNote, setSelectedNote] = useState<EditableNote | null>(null)
+  const [notePosition, setNotePosition] = useState<{ x: number; y: number; width: number; height: number; editorX: number } | null>(null)
+  const [fret, setFret] = useState('0')
+  const [playing, setPlaying] = useState(false)
+  const [synced, setSynced] = useState(false)
+  const editingRef = useRef<EditingState | null>(null)
+  const pendingLoad = useRef<{ resolve: () => void; reject: (error: Error) => void } | null>(null)
+  const historyPending = useRef(false)
+  const [soundFontName, setSoundFontName] = useState(DEFAULT_SOUND_FONT_NAME)
+  const [soundFontMessage, setSoundFontMessage] = useState('Loading default SoundFont...')
+  const [soundFontSettled, setSoundFontSettled] = useState(false)
+  const [soundFontUsable, setSoundFontUsable] = useState(false)
+  const soundFontPending = useRef(false)
+  const activeSoundFont = useRef<File | null>(null)
+  const soundFontAbort = useRef<AbortController | null>(null)
+
+  useEffect(() => {
+    const onKeyDown = (event: KeyboardEvent) => {
+      const direction = historyShortcut(event)
+      if (!direction) return
+      const target = event.target
+      // Text/number inputs retain their native undo for the uncommitted value.
+      if (target instanceof HTMLElement && (target.isContentEditable || target.closest('input, textarea, select'))) return
+      event.preventDefault()
+      if (!event.repeat) void changeHistory(direction)
+    }
+    window.addEventListener('keydown', onKeyDown)
+    return () => window.removeEventListener('keydown', onKeyDown)
+  }, [song, editing, busy, playing, synced, selectedTrack])
+
+  useEffect(() => {
+    if (!selectedNote || busy || playing || !synced) return
+    const frame = requestAnimationFrame(() => {
+      fretInputRef.current?.focus({ preventScroll: true })
+      fretInputRef.current?.select()
+    })
+    return () => cancelAnimationFrame(frame)
+  }, [selectedNote, busy, playing, synced])
+
+  function updateEditing(value: EditingState) {
+    editingRef.current = value
+    setEditing(value)
+    setSelectedNote(null)
+  }
+
+  async function loadScore(bytes: Uint8Array, track = 0) {
+    setSynced(false)
+    await new Promise<void>((resolve, reject) => {
+      const timeout = window.setTimeout(() => {
+        pendingLoad.current = null
+        reject(new Error('Score loading timed out. Reload the server score to retry.'))
+      }, 30000)
+      pendingLoad.current = {
+        resolve: () => { window.clearTimeout(timeout); resolve() },
+        reject: error => { window.clearTimeout(timeout); reject(error) }
+      }
+      try {
+        if (!apiRef.current?.load(bytes, [track])) throw new Error('alphaTab rejected the file data.')
+      } catch (error) {
+        pendingLoad.current?.reject(error instanceof Error ? error : new Error(String(error)))
+        pendingLoad.current = null
+      }
+    })
+    setSynced(true)
+  }
+
+  async function reloadSession(sessionId: string, track: number) {
+    const response = await fetch(`${API}/api/sessions/${sessionId}/download?format=gp5&revision=${editingRef.current?.revision}`)
+    if (!response.ok) throw new Error(await response.text())
+    await loadScore(new Uint8Array(await response.arrayBuffer()), track)
+  }
 
   useEffect(() => {
   if (!scoreRef.current) return
@@ -20,7 +98,8 @@ export default function App() {
   
   const api = new alphaTab.AlphaTabApi(scoreRef.current, {
     core: {
-      fontDirectory: '/font/'
+      fontDirectory: '/font/',
+      includeNoteBounds: true
     },
     display: {
       layoutMode: alphaTab.LayoutMode.Page,
@@ -29,7 +108,7 @@ export default function App() {
     player: {
       enablePlayer: true,
       playerMode: 'EnabledSynthesizer',
-      soundFont: '/soundfont/sonivox.sf2',
+      soundFont: DEFAULT_SOUND_FONT,
       scrollElement: 'html,body',
 
       // 재생 위치 표시
@@ -40,82 +119,77 @@ export default function App() {
   } as any)
 
 
-  api.playerReady.on(() => {
-    console.log('[Player] READY')
-    console.log('isReadyForPlayback:', api.isReadyForPlayback)
-    setStatus('Player ready. Press Play.')
-  })
-
-  api.soundFontLoad.on((e: any) => {
-    const percent = e.total > 0
-      ? Math.round((e.loaded / e.total) * 100)
-      : 0
-
-    console.log(`[SoundFont] ${percent}%`)
-  })
-
-  api.soundFontLoaded.on(() => {
-    console.log('[SoundFont] LOADED')
-  })
-
-  api.playerStateChanged.on((e: any) => {
-    console.log('[Player State]', e)
-  })
-
-  api.error.on((e: unknown) => {
-    console.error('[alphaTab Error]', e)
-    setStatus(`alphaTab Error: ${String(e)}`)
-  })
-
   apiRef.current = api
-
+  api.customCursorHandler = createConstantBarCursor(api)
+  api.playerReady.on(() => setStatus('Player ready.'))
+  const removeSoundFontLoaded = api.soundFontLoaded.on(() => {
+    if (soundFontPending.current) return
+    setSoundFontSettled(true)
+    setSoundFontUsable(true)
+    setSoundFontMessage('SoundFont ready.')
+  })
+  const removeSoundFontFailure = api.player?.soundFontLoadFailed.on((error: unknown) => {
+    if (soundFontPending.current) return
+    setSoundFontSettled(true)
+    setSoundFontUsable(false)
+    setSoundFontMessage(`SoundFont error: ${String(error)}. Select a file or retry the default.`)
+  })
+  api.playerStateChanged.on((e: any) => setPlaying(e.state === alphaTab.synth.PlayerState.Playing))
   api.error.on((e: unknown) => {
-    console.error('[alphaTab error]', e)
+    // SoundFont failures have their own recovery and do not invalidate the score.
+    if (soundFontPending.current) return
+    setSynced(false)
     setStatus(`Score error: ${String(e)}`)
+    pendingLoad.current?.reject(new Error(String(e)))
+    pendingLoad.current = null
   })
-
-  api.scoreLoaded.on((score: any) => {
-    console.log('[alphaTab] Score loaded:', score)
-    setStatus('Score parsed. Rendering…')
+  api.postRenderFinished.on(() => {
+    pendingLoad.current?.resolve()
+    pendingLoad.current = null
   })
-
-  api.soundFontLoaded.on(() => {
-    console.log('[alphaTab] SoundFont loaded')
-    setStatus('SoundFont loaded.')
+  api.renderStarted.on(() => setSelectedNote(null))
+  api.noteMouseDown.on((note: any) => {
+    const match = findEditableNote(note, editingRef.current)
+    if (!match) {
+      setSelectedNote(null)
+      setStatus('This note cannot be safely edited yet (effects, ties or unsupported mapping).')
+      return
+    }
+    const bounds = api.boundsLookup?.findBeat(note.beat)?.notes?.find(n => n.note.id === note.id)?.noteHeadBounds
+    const surface = (api.canvasElement as unknown as { element: HTMLElement }).element
+    const wrapper = scoreCanvasRef.current
+    if (!bounds || !surface || !wrapper) {
+      setSelectedNote(null)
+      setStatus('Note position is unavailable. Select the note again after rendering.')
+      return
+    }
+    const surfaceRect = surface.getBoundingClientRect()
+    const wrapperRect = wrapper.getBoundingClientRect()
+    const x = surfaceRect.left - wrapperRect.left + bounds.x
+    const y = surfaceRect.top - wrapperRect.top + bounds.y
+    setNotePosition({ x, y, width: bounds.w, height: bounds.h,
+      editorX: Math.max(0, Math.min(x, wrapper.clientWidth - 240)) })
+    setSelectedNote(match)
+    setFret(String(match.fret))
   })
-
-  api.playerReady.on(() => {
-    console.log('[alphaTab] Player ready')
-    setStatus('Player ready.')
-  })
-
-  api.playerStateChanged.on((e: unknown) => {
-    console.log('[alphaTab] Player state:', e)
-    setStatus(`Playback: ${String(e)}`)
-  })
-
   return () => {
+    soundFontAbort.current?.abort()
+    removeSoundFontLoaded()
+    removeSoundFontFailure?.()
+    pendingLoad.current?.reject(new Error('Player closed.'))
+    pendingLoad.current = null
     api.destroy()
     apiRef.current = null
   }
-
-  api.playerReady.on(() => {
-    console.log('[Player] Ready for playback')
-    setStatus('Player ready. Press Play.')
-  })
-
-  api.soundFontLoaded.on(() => {
-    console.log('[Player] SoundFont loaded')
-  })
-
-  api.error.on((e: unknown) => {
-    console.error('[alphaTab error]', e)
-    setStatus(`Error: ${String(e)}`)
-  })
 }, [])
 
   async function openFile(file?: File) {
     if (!file) return
+    setSynced(false)
+    setSelectedNote(null)
+    editingRef.current = null
+    setEditing(null)
+    apiRef.current?.stop()
     setBusy(true)
     setStatus('Reading file…')
     try {
@@ -127,14 +201,10 @@ export default function App() {
       setSong(metadata)
       setSelectedTrack(0)
       const bytes = new Uint8Array(await file.arrayBuffer())
-      const loaded = apiRef.current?.load(bytes)
-
-      console.log('[alphaTab] Load requested:', loaded)
-      console.log('[alphaTab] File size:', bytes.length)
-
-      if (!loaded) {
-        throw new Error('alphaTab rejected the file data.')
-      }
+      const stateResponse = await fetch(`${API}/api/sessions/${metadata.sessionId}/editing`)
+      if (!stateResponse.ok) throw new Error(await stateResponse.text())
+      updateEditing(await stateResponse.json())
+      await loadScore(bytes)
 
       setStatus(`Loading score: ${file.name}`)
     } catch (e) {
@@ -153,11 +223,8 @@ function selectTrack(index: number) {
   }
 
   setSelectedTrack(index)
+  setSelectedNote(null)
 
-  // 이전에 설정된 솔로 상태 초기화
-  api.changeTrackSolo(score.tracks, false)
-
-  // 선택한 트랙만 악보에 표시
   api.renderTracks([score.tracks[index]])
 
   console.log('[Track selected]', score.tracks[index].name)
@@ -174,15 +241,82 @@ function selectTrack(index: number) {
   async function duplicateTrack() {
     if (!song) return
     setBusy(true)
+    setSynced(false)
     try {
       const response = await fetch(`${API}/api/sessions/${song.sessionId}/tracks/${selectedTrack}/duplicate`, {
         method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({})
       })
       if (!response.ok) throw new Error(await response.text())
       await refreshSession()
-      setStatus('Track duplicated in the editing session. Save GP5 to export it.')
+      setSynced(false)
+      const stateResponse = await fetch(`${API}/api/sessions/${song.sessionId}/editing`)
+      if (!stateResponse.ok) throw new Error(await stateResponse.text())
+      updateEditing(await stateResponse.json())
+      await reloadSession(song.sessionId, selectedTrack)
+      setStatus('Track duplicated. Fret history reset. Save GP5 to export it.')
     } catch (e) { setStatus(e instanceof Error ? e.message : String(e)) }
     finally { setBusy(false) }
+  }
+
+  async function applyFret() {
+    if (!song || !selectedNote || !editing || busy || playing || apiRef.current?.playerState === alphaTab.synth.PlayerState.Playing || !synced) return
+    if (fret.trim() === '' || !Number.isInteger(Number(fret)) || Number(fret) < 0 ||
+        Number(fret) > selectedNote.maxFret || Number(fret) === selectedNote.fret) return
+    setBusy(true)
+    apiRef.current?.stop()
+    try {
+      const response = await fetch(`${API}/api/sessions/${song.sessionId}/fret`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ commandId: crypto.randomUUID(), expectedRevision: editing.revision,
+          noteId: selectedNote.id, fret: Number(fret) })
+      })
+      if (!response.ok) throw new Error(await response.text())
+      setSynced(false)
+      updateEditing(await response.json())
+      await reloadSession(song.sessionId, selectedTrack)
+      setStatus('Fret updated. Save GP5 to download the edited score.')
+    } catch (e) {
+      // A lost response may follow a committed edit. Require an explicit resync.
+      setSynced(false)
+      setStatus(e instanceof Error ? e.message : String(e))
+    } finally { setBusy(false) }
+  }
+
+  async function recoverScore() {
+    if (!song) return
+    setBusy(true)
+    apiRef.current?.stop()
+    try {
+      const response = await fetch(`${API}/api/sessions/${song.sessionId}/editing`)
+      if (!response.ok) throw new Error(await response.text())
+      updateEditing(await response.json())
+      await reloadSession(song.sessionId, selectedTrack)
+      setStatus('Score synchronized.')
+    } catch (e) { setStatus(e instanceof Error ? e.message : String(e)) }
+    finally { setBusy(false) }
+  }
+
+  async function changeHistory(direction: 'undo' | 'redo') {
+    if (!song || !editing || busy || historyPending.current || playing || !synced ||
+        apiRef.current?.playerState === alphaTab.synth.PlayerState.Playing ||
+        !(direction === 'undo' ? editing.canUndo : editing.canRedo)) return
+    historyPending.current = true
+    setBusy(true)
+    apiRef.current?.stop()
+    try {
+      const response = await fetch(`${API}/api/sessions/${song.sessionId}/history/${direction}`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ commandId: crypto.randomUUID(), expectedRevision: editing.revision })
+      })
+      if (!response.ok) throw new Error(await response.text())
+      setSynced(false)
+      updateEditing(await response.json())
+      await reloadSession(song.sessionId, selectedTrack)
+      setStatus(direction === 'undo' ? 'Fret change undone.' : 'Fret change redone.')
+    } catch (e) {
+      setSynced(false)
+      setStatus(e instanceof Error ? e.message : String(e))
+    } finally { historyPending.current = false; setBusy(false) }
   }
 
   async function saveGp5() {
@@ -201,17 +335,65 @@ function selectTrack(index: number) {
     finally { setBusy(false) }
   }
 
+  async function changeSoundFont(file: File | null) {
+    const api = apiRef.current as alphaTab.AlphaTabApi | null
+    if (!api || busy || soundFontPending.current || !soundFontSettled) return
+    const previous = activeSoundFont.current
+    const controller = new AbortController()
+    soundFontAbort.current = controller
+    soundFontPending.current = true
+    setBusy(true)
+    setSelectedNote(null)
+    api.stop()
+    setSoundFontMessage(`Loading ${file?.name ?? DEFAULT_SOUND_FONT_NAME}...`)
+    let replacing = false
+    try {
+      const data = file ? await readSoundFont(file) : DEFAULT_SOUND_FONT
+      if (controller.signal.aborted) return
+      replacing = true
+      setSoundFontUsable(false)
+      await replaceSoundFont(api, data, controller.signal)
+      activeSoundFont.current = file
+      setSoundFontName(file?.name ?? DEFAULT_SOUND_FONT_NAME)
+      setSoundFontUsable(true)
+      setSoundFontMessage('SoundFont ready. Press Play to listen.')
+    } catch (error) {
+      if (controller.signal.aborted) return
+      const message = error instanceof Error ? error.message : String(error)
+      if (replacing) {
+        setSoundFontMessage(`${message} Restoring previous SoundFont...`)
+        try {
+          const data = previous ? await readSoundFont(previous) : DEFAULT_SOUND_FONT
+          await replaceSoundFont(api, data, controller.signal)
+          setSoundFontUsable(true)
+          setSoundFontMessage(`${message} Previous SoundFont restored.`)
+        } catch (restoreError) {
+          if (controller.signal.aborted) return
+          setSoundFontName('Unavailable')
+          setSoundFontUsable(false)
+          setSoundFontMessage(`${message} Restore failed: ${String(restoreError)}. Retry the default SoundFont.`)
+        }
+      } else {
+        setSoundFontMessage(message)
+      }
+    } finally {
+      soundFontPending.current = false
+      soundFontAbort.current = null
+      setBusy(false)
+    }
+  }
+
   return <main className="app">
     <header className="topbar">
       <div><div className="brand">GP5 Editor</div><div className="sub">Player · TAB editor prototype</div></div>
-      <label className="open-button">Open GP file<input type="file" accept=".gp3,.gp4,.gp5" onChange={e => openFile(e.target.files?.[0])} /></label>
+      <label className="open-button">Open GP file<input type="file" disabled={busy} accept=".gp3,.gp4,.gp5" onChange={e => openFile(e.target.files?.[0])} /></label>
       <button disabled={!song || busy} onClick={saveGp5}>Save GP5</button>
       <button disabled={!song} onClick={() => apiRef.current?.print()}>Print / PDF</button>
     </header>
 
     <section className="toolbar">
       <button
-        disabled={!song || busy}
+        disabled={!song || busy || !synced || !soundFontUsable}
         onClick={() => {
           const api = apiRef.current
 
@@ -236,13 +418,28 @@ function selectTrack(index: number) {
         Play
       </button>
       <button disabled={!song} onClick={() => apiRef.current?.stop()}>Stop</button>
-      <button disabled={!song || busy} onClick={duplicateTrack}>Duplicate selected track</button>
+      <button title="Undo (Ctrl+Z)" aria-keyshortcuts="Control+Z" disabled={!editing?.canUndo || busy || playing || !synced} onClick={() => changeHistory('undo')}>Undo</button>
+      <button title="Redo (Ctrl+Shift+Z)" aria-keyshortcuts="Control+Shift+Z" disabled={!editing?.canRedo || busy || playing || !synced} onClick={() => changeHistory('redo')}>Redo</button>
+      <button disabled={!song || busy || playing || !synced} onClick={duplicateTrack}>Duplicate selected track</button>
+    </section>
+
+    <section className="toolbar" aria-label="SoundFont">
+      <label className="open-button">Load SoundFont<input type="file" accept=".sf2,.sf3" disabled={busy || !soundFontSettled}
+        onChange={e => { const file = e.target.files?.[0]; e.target.value = ''; if (file) void changeSoundFont(file) }} /></label>
+      <button disabled={busy || !soundFontSettled} onClick={() => changeSoundFont(null)}>Use default SoundFont</button>
+      <span>{soundFontName}</span>
+      <span className="muted" role="status">{soundFontMessage}</span>
+    </section>
+
+    <section className="toolbar" aria-label="Note editor">
+      <span>{selectedNote ? `Bar ${selectedNote.bar + 1} / selected fret ${selectedNote.fret}` : 'Click an ordinary TAB note to edit its fret.'}</span>
+      {song && !synced && !busy && <button onClick={recoverScore}>Reload server score</button>}
     </section>
 
     <div className="workspace">
       <aside className="tracks">
         <h3>Tracks</h3>
-        {song?.tracks.map(track => <button key={track.index} className={selectedTrack === track.index ? 'track selected' : 'track'} onClick={() => selectTrack(track.index)}>
+        {song?.tracks.map(track => <button key={track.index} disabled={busy || !synced} className={selectedTrack === track.index ? 'track selected' : 'track'} onClick={() => selectTrack(track.index)}>
           <span>{track.name}</span><small>{track.measureCount} bars</small>
         </button>)}
         {!song && <p className="muted">No score loaded</p>}
@@ -252,7 +449,24 @@ function selectTrack(index: number) {
           <div><h2>{song?.title || 'Untitled score'}</h2><p>{song?.artist || 'Open a GP5 file to view the score'}</p></div>
           {song && <span>{song.tempo} BPM · {song.trackCount} tracks</span>}
         </div>
-        <div className="score-scroll"><div ref={scoreRef} className="score" /></div>
+        <div className="score-scroll"><div ref={scoreCanvasRef} className="score-canvas">
+          <div ref={scoreRef} className="score" />
+          {selectedNote && notePosition && !busy && !playing && synced && <>
+            <div className="selected-note-outline" aria-hidden="true" style={{
+              left: notePosition.x - 3, top: notePosition.y - 3,
+              width: notePosition.width + 6, height: notePosition.height + 6 }} />
+            <form className="inline-fret-editor" aria-label="Selected note fret editor"
+              style={{ left: notePosition.editorX, top: notePosition.y + notePosition.height + 8 }}
+              onSubmit={e => { e.preventDefault(); void applyFret() }}
+              onKeyDown={e => { if (e.key === 'Escape') { e.preventDefault(); setSelectedNote(null) } }}>
+              <label>Fret <input ref={fretInputRef} aria-label="Fret" type="number" min="0" max={selectedNote.maxFret}
+                required step="1" value={fret} onChange={e => setFret(e.target.value)} /></label>
+              <button type="submit" disabled={fret.trim() === '' || !Number.isInteger(Number(fret)) ||
+                Number(fret) < 0 || Number(fret) > selectedNote.maxFret || Number(fret) === selectedNote.fret}>Apply fret</button>
+              <button type="button" onClick={() => setSelectedNote(null)}>Cancel</button>
+            </form>
+          </>}
+        </div></div>
       </section>
     </div>
     <footer><span>{busy ? 'Working…' : status}</span><span>Prototype 0.1</span></footer>

@@ -1,4 +1,7 @@
 .venv/
+.venv.before-*/
+.python-runtime/
+*.tsbuildinfo
 __pycache__/
 .pytest_cache/
 node_modules/
