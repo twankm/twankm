@@ -1,41 +1,59 @@
 :root { font-family: Inter, ui-sans-serif, system-ui, sans-serif; color: #20242b; background: #f3f5f7; }
 * { box-sizing: border-box; }
 body { margin: 0; }
+html { scroll-padding-top:calc(var(--controls-height, 0px) + 12px); }
 button, .open-button { border: 1px solid #cbd1d8; background: white; color: #222; border-radius: 7px; padding: 9px 12px; font: inherit; cursor: pointer; }
 button:disabled { opacity: .45; cursor: not-allowed; }
 .app { min-height: 100vh; display: flex; flex-direction: column; }
-.topbar { display:flex; align-items:center; gap:10px; padding:14px 18px; background:#fff; border-bottom:1px solid #dfe3e8; }
-.brand { font-weight:750; font-size:20px; }.sub { font-size:12px; color:#707985; margin-top:2px; }
-.topbar > div { margin-right:auto; }.open-button input { display:none; }
+.app-controls { position:sticky; top:0; z-index:20; background:#fff; box-shadow:0 2px 6px #20242b0a; }
+.operation-status { padding:3px 18px; border-bottom:1px solid #dfe3e8; color:#52606a; font-size:12px; line-height:1.4; overflow-wrap:anywhere; }
+.topbar { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px 12px; min-height:38px; padding:4px 18px; background:#fff; border-bottom:1px solid #dfe3e8; }
+.transport-actions, .file-actions { display:flex; align-items:center; gap:6px; }
+.file-actions { margin-left:auto; justify-content:flex-end; flex-wrap:wrap; min-width:0; max-width:100%; }
+.soundfont-actions { display:flex; align-items:center; gap:6px; padding-right:10px; margin-right:4px; border-right:1px solid #dfe3e8; }
+.soundfont-name { max-width:140px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:12px; color:#68727e; }
+.topbar button, .topbar .open-button { padding:4px 9px; border-radius:5px; font-size:13px; line-height:20px; white-space:nowrap; }
+.open-button input { display:none; }
 .toolbar { display:flex; gap:8px; padding:10px 18px; border-bottom:1px solid #dfe3e8; background:#fafbfc; flex-wrap:wrap; }
 .toolbar[aria-label="SoundFont"] { align-items:center; }
 .toolbar[aria-label="SoundFont"] > span { overflow-wrap:anywhere; }
-.workspace { flex:1; display:grid; grid-template-columns:230px minmax(0,1fr); min-height:400px; }
+.workspace { flex:1; display:grid; grid-template-columns:250px minmax(0,1fr); min-height:400px; position:relative; z-index:0; isolation:isolate; }
 .tracks { padding:16px 12px; background:#fff; border-right:1px solid #dfe3e8; }
 .tracks h3 { margin:0 0 12px; font-size:13px; text-transform:uppercase; letter-spacing:.06em; color:#69727e; }
 .track { display:flex; width:100%; justify-content:space-between; text-align:left; margin-bottom:6px; gap:8px; }
 .track small { color:#78818c; white-space:nowrap; }.track.selected { border-color:#39946a; background:#edf8f1; }
+.track-card { border:1px solid #dfe3e8; border-radius:7px; padding:6px; margin-bottom:8px; }
+.track-card.selected { border-color:#39946a; background:#edf8f1; }
+.track-card .track { border:0; background:transparent; padding:4px 2px; margin-bottom:4px; }
+.track-mix { display:flex; gap:5px; align-items:center; margin-bottom:6px; flex-wrap:wrap; }
+.track-mix button { font-size:12px; padding:3px 8px; border-radius:4px; }
+.track-mix button.active { color:#fff; background:#25825b; border-color:#25825b; }
+.track-mix button.muted-track { background:#a75535; border-color:#a75535; }
+.track-mix small { font-size:10px; color:#68727e; }
+.track-instrument { width:100%; min-width:0; padding:5px 3px; border:1px solid #cbd1d8; border-radius:4px; background:#fff; color:#20242b; font:inherit; font-size:12px; }
 .score-area { min-width:0; padding:18px; }.score-heading { display:flex; justify-content:space-between; align-items:center; gap:12px; margin-bottom:14px; }
 .score-heading h2 { margin:0; font-size:20px; }.score-heading p,.score-heading span,.muted { color:#737d89; font-size:13px; }
 .score-scroll { background:#fff; border:1px solid #e0e4e9; border-radius:9px; min-height:480px; padding:16px; overflow:auto; }
-.score { min-height:440px; }
+.score { min-height:440px; isolation:isolate; }
 .score-canvas { position:relative; padding-bottom:80px; }
 .selected-note-outline { position:absolute; border:2px solid #25825b; border-radius:4px; background:rgba(37,130,91,.1); pointer-events:none; z-index:2; }
+.selected-measure-outline { position:absolute; z-index:1; pointer-events:none; border:2px dashed #25825b; border-radius:4px; background:rgba(37,130,91,.05); }
+.transport-actions button[aria-pressed="true"] { border-color:#25825b; background:#edf8f1; color:#195c40; }
 .inline-fret-editor { position:absolute; z-index:3; display:flex; align-items:center; flex-wrap:wrap; gap:6px; width:240px; max-width:100%; padding:10px; border:1px solid #25825b; border-radius:8px; background:#fff; box-shadow:0 4px 16px #0002; }
 .inline-fret-editor label { display:flex; align-items:center; gap:6px; }
 .inline-fret-editor input { width:62px; padding:6px; border:1px solid #8a9690; border-radius:4px; font:inherit; }
 .inline-fret-editor button { padding:6px 8px; }
 footer { display:flex; justify-content:space-between; gap:12px; padding:10px 18px; background:#fff; border-top:1px solid #dfe3e8; color:#68727e; font-size:12px; }
-@media (max-width:700px) { .workspace { grid-template-columns:1fr; }.tracks { border-right:0; border-bottom:1px solid #dfe3e8; }.topbar { flex-wrap:wrap; }.topbar > div { width:100%; } }
+@media (max-width:700px) { .workspace { grid-template-columns:1fr; }.tracks { border-right:0; border-bottom:1px solid #dfe3e8; }.topbar { flex-wrap:wrap; gap:6px; padding:4px 10px; }.file-actions { flex-wrap:wrap; }.topbar .transport-actions { flex-wrap:wrap; } }
 @media print {
   :root, body { background:white; }
-  .topbar, .toolbar, .tracks, footer, .score-heading { display:none !important; }
+  .app-controls, .topbar, .toolbar, .tracks, footer, .score-heading { display:none !important; }
   .workspace { display:block; min-height:0; }
   .score-area { padding:0; }
   .score-scroll { border:0; overflow:visible; padding:0; }
   .score { min-height:0; }
   .score-canvas { padding-bottom:0; }
-  .inline-fret-editor, .selected-note-outline { display:none !important; }
+  .inline-fret-editor, .selected-note-outline, .selected-measure-outline { display:none !important; }
   @page { size:A4 portrait; margin:12mm; }
 }
 /* 현재 재생 중인 마디 */

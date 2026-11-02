@@ -73,14 +73,16 @@ def test_rejected_edits_do_not_mutate(score, changes, status):
     assert state(score) == before
 
 
-def test_effects_and_ties_are_not_editable(score):
+def test_effect_note_is_editable_and_preserved(score):
     song = SESSIONS[score]['song']
     notes = song.tracks[0].measures[0].voices[0].beats[0].notes
-    notes[0].effect.bend = gp.BendEffect()
-    assert not next(n for n in state(score)['notes'] if n['fret'] == 3)['editable']
-    assert client.post(f'/api/sessions/{score}/fret', json=command(score)).status_code == 422
-    notes[1].type = gp.NoteType.tie
-    assert not any(n['editable'] for n in state(score)['notes'])
+    notes[0].effect.vibrato = True
+    notes[0].effect.hammer = True
+    assert next(n for n in state(score)['notes'] if n['fret'] == 3)['editable']
+    response = client.post(f'/api/sessions/{score}/fret', json=command(score))
+    assert response.status_code == 200, response.text
+    edited = SESSIONS[score]['song'].tracks[0].measures[0].voices[0].beats[0].notes[0]
+    assert edited.value == 5 and edited.effect.vibrato and edited.effect.hammer
 
 
 def test_serialization_failure_rolls_back(score, monkeypatch):
@@ -103,11 +105,14 @@ def test_duplicate_invalidates_old_revision_and_exports(score):
 
 
 @pytest.mark.parametrize('second_voice', [False, True])
-def test_real_alphatab_note_mapping(score, tmp_path, second_voice):
+@pytest.mark.parametrize('grace', [False, True])
+def test_real_alphatab_note_mapping(score, tmp_path, second_voice, grace):
     node = shutil.which('node')
     if not node:
         pytest.skip('Node.js required for alphaTab integration check')
     song = SESSIONS[score]['song']
+    if grace:
+        song.tracks[0].measures[0].voices[0].beats[0].notes[0].effect.grace = gp.GraceEffect(fret=1)
     if second_voice:
         # alphaTab compresses voice indexes when the first voice has no beats.
         first, second = song.tracks[0].measures[0].voices
@@ -125,7 +130,7 @@ def test_real_alphatab_note_mapping(score, tmp_path, second_voice):
     assert result.returncode == 0, result.stdout + result.stderr
 
 
-def test_tie_origin_in_previous_measure_is_not_editable(score):
+def test_tie_chain_edits_and_undo_across_measures(score):
     song = SESSIONS[score]['song']
     header = gp.MeasureHeader(number=2, start=4800)
     song.measureHeaders.append(header)
@@ -136,7 +141,41 @@ def test_tie_origin_in_previous_measure_is_not_editable(score):
     beat.notes = [gp.Note(beat, value=3, string=1, type=gp.NoteType.tie)]
     voice.beats.append(beat)
     original = next(n for n in state(score)['notes'] if n['bar'] == 0 and n['fret'] == 3)
-    assert not original['editable']
+    assert original['editable']
+    response = client.post(f'/api/sessions/{score}/fret', json=command(score))
+    assert response.status_code == 200, response.text
+    assert [n['fret'] for n in response.json()['notes'] if n['string'] == 6] == [5, 5]
+    response = client.post(f'/api/sessions/{score}/history/undo', json=dict(commandId='undo-tie', expectedRevision=1))
+    assert response.status_code == 200, response.text
+    assert [n['fret'] for n in response.json()['notes'] if n['string'] == 6] == [3, 3]
+
+
+def test_add_unused_string_roundtrip_history_and_identity(score):
+    before = state(score)
+    beat = before['beats'][0]
+    request = dict(commandId='add-note', expectedRevision=0, beatId=beat['id'], string=1, fret=0)
+    response = client.post(f'/api/sessions/{score}/notes', json=request)
+    assert response.status_code == 200, response.text
+    after = response.json()
+    assert len(after['notes']) == 3
+    assert set(n['id'] for n in before['notes']) <= set(n['id'] for n in after['notes'])
+    assert client.post(f'/api/sessions/{score}/notes', json=request).json() == after
+    saved = gp.parse(io.BytesIO(client.get(f'/api/sessions/{score}/download').content))
+    assert [(n.string, n.value) for n in saved.tracks[0].measures[0].voices[0].beats[0].notes] == [(1, 3), (2, 2), (6, 0)]
+    for direction, revision, count in [('undo', 1, 2), ('redo', 2, 3)]:
+        response = client.post(f'/api/sessions/{score}/history/{direction}', json=dict(commandId=direction, expectedRevision=revision))
+        assert response.status_code == 200, response.text
+        assert len(response.json()['notes']) == count
+
+
+def test_grace_edit_preserves_main_note(score):
+    note = SESSIONS[score]['song'].tracks[0].measures[0].voices[0].beats[0].notes[0]
+    note.effect.grace = gp.GraceEffect(fret=1)
+    grace = next(n for n in state(score)['notes'] if n['kind'] == 'grace')
+    response = client.post(f'/api/sessions/{score}/fret', json=dict(commandId='grace', expectedRevision=0, noteId=grace['id'], fret=2))
+    assert response.status_code == 200, response.text
+    note = SESSIONS[score]['song'].tracks[0].measures[0].voices[0].beats[0].notes[0]
+    assert note.value == 3 and note.effect.grace.fret == 2
 
 
 def test_other_note_effect_survives_fret_edit(score):

@@ -1,26 +1,38 @@
 import { useEffect, useRef, useState } from 'react'
 import * as alphaTab from '@coderline/alphatab'
-import { findEditableNote, type EditableNote, type EditingState } from './noteEditing'
+import { findEditableNote, findEditableBeat, type EditableBeat, type EditableNote, type EditingState } from './noteEditing'
 import { historyShortcut } from './historyShortcut'
+import { isPlaybackShortcut } from './playbackShortcut'
 import { createConstantBarCursor } from './constantBarCursor'
 import { DEFAULT_SOUND_FONT, DEFAULT_SOUND_FONT_NAME, readSoundFont, replaceSoundFont } from './soundFont'
+import { soundFontPresets as parseSoundFontPresets, trackPresets, type SoundFontPreset } from './soundFontPresets'
+import { applyTrackMix } from './trackMix'
+import { pickFile } from './filePicker'
+import { measureShortcut } from './measureShortcut'
+import { extendMeasureSelection, measureCount, type MeasureSelection } from './measureSelection'
+import { apiError } from './apiError'
 
 const API = import.meta.env.VITE_API_BASE || 'http://127.0.0.1:8000'
 
-type Track = { index: number; name: string; measureCount: number; instrument: number; isPercussionTrack: boolean; tuning: number[] }
+type Track = { index: number; name: string; measureCount: number; instrument: number; bank: number; isPercussionTrack: boolean; tuning: number[]; isSolo: boolean; isMute: boolean; sharedTracks: number[] }
 type Song = { sessionId: string; title: string; artist: string; tempo: number; trackCount: number; tracks: Track[] }
 
 export default function App() {
   const scoreRef = useRef<HTMLDivElement>(null)
+  const controlsRef = useRef<HTMLDivElement>(null)
   const scoreCanvasRef = useRef<HTMLDivElement>(null)
   const fretInputRef = useRef<HTMLInputElement>(null)
+  const scoreFileRef = useRef<HTMLInputElement>(null)
+  const soundFontFileRef = useRef<HTMLInputElement>(null)
   const apiRef = useRef<any>(null)
   const [song, setSong] = useState<Song | null>(null)
+  const songRef = useRef<Song | null>(null)
   const [selectedTrack, setSelectedTrack] = useState(0)
   const [status, setStatus] = useState('Open a Guitar Pro file to begin.')
   const [busy, setBusy] = useState(false)
   const [editing, setEditing] = useState<EditingState | null>(null)
   const [selectedNote, setSelectedNote] = useState<EditableNote | null>(null)
+  const [selectedBeat, setSelectedBeat] = useState<EditableBeat | null>(null)
   const [notePosition, setNotePosition] = useState<{ x: number; y: number; width: number; height: number; editorX: number } | null>(null)
   const [fret, setFret] = useState('0')
   const [playing, setPlaying] = useState(false)
@@ -35,20 +47,117 @@ export default function App() {
   const soundFontPending = useRef(false)
   const activeSoundFont = useRef<File | null>(null)
   const soundFontAbort = useRef<AbortController | null>(null)
+  const [presets, setPresets] = useState<SoundFontPreset[]>([])
+  const [editMode, setEditMode] = useState(false)
+  const [selectedMeasure, setSelectedMeasure] = useState<MeasureSelection | null>(null)
+  const [measurePositions, setMeasurePositions] = useState<{ bar: number; x: number; y: number; width: number; height: number }[]>([])
+  const [clipboard, setClipboard] = useState<{ clipboardId: string; track: number; bar: number; count: number; excludedControllers?: number } | null>(null)
+  const selectedMeasureRef = useRef<typeof selectedMeasure>(null)
+  const interactionRef = useRef({ editMode, busy, playing, synced })
+  interactionRef.current = { editMode, busy, playing, synced }
+  const clipboardPending = useRef(false)
+  const pickerPending = useRef(false)
+  const lastNoteClick = useRef<{ id: number; time: number } | null>(null)
+  const selectionShift = useRef(false)
+
+  useEffect(() => {
+    const down = (event: KeyboardEvent) => { if (event.key === 'Shift') selectionShift.current = true }
+    const up = (event: KeyboardEvent) => { if (event.key === 'Shift') selectionShift.current = false }
+    const blur = () => { selectionShift.current = false }
+    window.addEventListener('keydown', down)
+    window.addEventListener('keyup', up)
+    window.addEventListener('blur', blur)
+    return () => {
+      window.removeEventListener('keydown', down)
+      window.removeEventListener('keyup', up)
+      window.removeEventListener('blur', blur)
+    }
+  }, [])
+
+  function selectMeasure(selection: typeof selectedMeasure) {
+    selectedMeasureRef.current = selection
+    setSelectedMeasure(selection)
+    setSelectedNote(null)
+    updateMeasurePosition()
+  }
+
+  function updateMeasurePosition() {
+    const selected = selectedMeasureRef.current
+    const api = apiRef.current as alphaTab.AlphaTabApi | null
+    const surface = (api?.canvasElement as unknown as { element?: HTMLElement })?.element
+    const wrapper = scoreCanvasRef.current
+    if (!selected || !surface || !wrapper) { setMeasurePositions([]); return }
+    const surfaceRect = surface.getBoundingClientRect(), wrapperRect = wrapper.getBoundingClientRect()
+    const positions = []
+    for (let bar = selected.bar; bar <= selected.endBar; bar++) {
+      const bounds = api?.boundsLookup?.findMasterBarByIndex(bar)?.visualBounds
+      if (bounds) positions.push({ bar, x: surfaceRect.left - wrapperRect.left + bounds.x,
+        y: surfaceRect.top - wrapperRect.top + bounds.y, width: bounds.w, height: bounds.h })
+    }
+    setMeasurePositions(positions)
+  }
+
+  function updateSong(value: Song) {
+    songRef.current = value
+    setSong(value)
+  }
+
+  useEffect(() => {
+    const controller = new AbortController()
+    void fetch(DEFAULT_SOUND_FONT, { signal: controller.signal }).then(async response => {
+      if (!response.ok) throw new Error('Could not read the default instrument list.')
+      const result = parseSoundFontPresets(new Uint8Array(await response.arrayBuffer()))
+      if (!controller.signal.aborted && !activeSoundFont.current && !soundFontPending.current) setPresets(result)
+    }).catch(error => {
+      if (!controller.signal.aborted && !activeSoundFont.current && !soundFontPending.current) setSoundFontMessage(String(error))
+    })
+    return () => controller.abort()
+  }, [])
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
-      const direction = historyShortcut(event)
-      if (!direction) return
       const target = event.target
       // Text/number inputs retain their native undo for the uncommitted value.
       if (target instanceof HTMLElement && (target.isContentEditable || target.closest('input, textarea, select'))) return
+      const measureAction = measureShortcut(event)
+      if (measureAction && editMode && selectedMeasure) {
+        event.preventDefault()
+        if (!event.repeat) void measureClipboard(measureAction)
+        return
+      }
+      if (isPlaybackShortcut(event)) {
+        // Space on a focused button must retain the button's native action.
+        if (target instanceof HTMLElement && target.closest('button, a, [role="button"]')) return
+        event.preventDefault()
+        if (!event.repeat) togglePlayback()
+        return
+      }
+      const direction = historyShortcut(event)
+      if (!direction || !editMode) return
       event.preventDefault()
       if (!event.repeat) void changeHistory(direction)
     }
     window.addEventListener('keydown', onKeyDown)
     return () => window.removeEventListener('keydown', onKeyDown)
-  }, [song, editing, busy, playing, synced, selectedTrack])
+  }, [song, editing, busy, playing, synced, selectedTrack, soundFontUsable, editMode, selectedMeasure, clipboard])
+
+  useEffect(() => {
+    const controls = controlsRef.current
+    if (!controls) return
+    const update = () => {
+      const height = controls.getBoundingClientRect().height
+      document.documentElement.style.setProperty('--controls-height', `${height}px`)
+      // Leave the current system visible below the sticky controls during auto-scroll.
+      if (apiRef.current) apiRef.current.settings.player.scrollOffsetY = -height - 12
+    }
+    const observer = new ResizeObserver(update)
+    observer.observe(controls)
+    update()
+    return () => {
+      observer.disconnect()
+      document.documentElement.style.removeProperty('--controls-height')
+    }
+  }, [])
 
   useEffect(() => {
     if (!selectedNote || busy || playing || !synced) return
@@ -63,6 +172,7 @@ export default function App() {
     editingRef.current = value
     setEditing(value)
     setSelectedNote(null)
+    setSelectedBeat(null)
   }
 
   async function loadScore(bytes: Uint8Array, track = 0) {
@@ -83,6 +193,7 @@ export default function App() {
         pendingLoad.current = null
       }
     })
+    if (songRef.current && apiRef.current) applyTrackMix(apiRef.current, songRef.current.tracks)
     setSynced(true)
   }
 
@@ -121,7 +232,10 @@ export default function App() {
 
   apiRef.current = api
   api.customCursorHandler = createConstantBarCursor(api)
-  api.playerReady.on(() => setStatus('Player ready.'))
+  api.playerReady.on(() => {
+    if (songRef.current) applyTrackMix(api, songRef.current.tracks)
+    setStatus('Player ready.')
+  })
   const removeSoundFontLoaded = api.soundFontLoaded.on(() => {
     if (soundFontPending.current) return
     setSoundFontSettled(true)
@@ -144,15 +258,40 @@ export default function App() {
     pendingLoad.current = null
   })
   api.postRenderFinished.on(() => {
+    updateMeasurePosition()
     pendingLoad.current?.resolve()
     pendingLoad.current = null
   })
-  api.renderStarted.on(() => setSelectedNote(null))
+  api.renderStarted.on(() => { setSelectedNote(null); setSelectedBeat(null); setMeasurePositions([]) })
+  api.beatMouseDown.on(beat => {
+    const state = interactionRef.current
+    if (!state.editMode || state.busy || state.playing || !state.synced) return
+    const bar = beat.voice.bar
+    if (selectionShift.current) lastNoteClick.current = null
+    selectMeasure(extendMeasureSelection(selectedMeasureRef.current, bar.staff.track.index, bar.index, selectionShift.current))
+    setSelectedNote(null)
+    setSelectedBeat(selectionShift.current ? null : findEditableBeat(beat, editingRef.current))
+    const bounds = api.boundsLookup?.findBeat(beat)?.realBounds
+    const surface = (api.canvasElement as unknown as { element: HTMLElement }).element
+    const wrapper = scoreCanvasRef.current
+    if (bounds && surface && wrapper) {
+      const a = surface.getBoundingClientRect(), b = wrapper.getBoundingClientRect()
+      const x = a.left - b.left + bounds.x, y = a.top - b.top + bounds.y
+      setNotePosition({ x, y, width: bounds.w, height: bounds.h, editorX: Math.max(0, Math.min(x, wrapper.clientWidth - 300)) })
+    }
+  })
   api.noteMouseDown.on((note: any) => {
+    const state = interactionRef.current
+    if (!state.editMode || state.busy || state.playing || !state.synced || selectionShift.current) return
+    const now = performance.now()
+    const previous = lastNoteClick.current
+    lastNoteClick.current = { id: note.id, time: now }
+    // Single click selects a measure for Ctrl+C/V; double click edits a fret.
+    if (!previous || previous.id !== note.id || now - previous.time > 450) return
     const match = findEditableNote(note, editingRef.current)
     if (!match) {
       setSelectedNote(null)
-      setStatus('This note cannot be safely edited yet (effects, ties or unsupported mapping).')
+      setStatus('This note could not be matched safely to the GP5 data.')
       return
     }
     const bounds = api.boundsLookup?.findBeat(note.beat)?.notes?.find(n => n.note.id === note.id)?.noteHeadBounds
@@ -187,6 +326,10 @@ export default function App() {
     if (!file) return
     setSynced(false)
     setSelectedNote(null)
+    selectMeasure(null)
+    setClipboard(null)
+    setEditMode(false)
+    lastNoteClick.current = null
     editingRef.current = null
     setEditing(null)
     apiRef.current?.stop()
@@ -198,7 +341,7 @@ export default function App() {
       const response = await fetch(`${API}/api/sessions`, { method: 'POST', body: form })
       if (!response.ok) throw new Error(await response.text())
       const metadata: Song = await response.json()
-      setSong(metadata)
+      updateSong(metadata)
       setSelectedTrack(0)
       const bytes = new Uint8Array(await file.arrayBuffer())
       const stateResponse = await fetch(`${API}/api/sessions/${metadata.sessionId}/editing`)
@@ -224,6 +367,8 @@ function selectTrack(index: number) {
 
   setSelectedTrack(index)
   setSelectedNote(null)
+  selectMeasure(null)
+  lastNoteClick.current = null
 
   api.renderTracks([score.tracks[index]])
 
@@ -235,11 +380,11 @@ function selectTrack(index: number) {
     if (!song) return
     const response = await fetch(`${API}/api/sessions/${song.sessionId}`)
     if (!response.ok) throw new Error(await response.text())
-    setSong(await response.json())
+    updateSong(await response.json())
   }
 
   async function duplicateTrack() {
-    if (!song) return
+    if (!song || !editMode) return
     setBusy(true)
     setSynced(false)
     try {
@@ -253,24 +398,47 @@ function selectTrack(index: number) {
       if (!stateResponse.ok) throw new Error(await stateResponse.text())
       updateEditing(await stateResponse.json())
       await reloadSession(song.sessionId, selectedTrack)
-      setStatus('Track duplicated. Fret history reset. Save GP5 to export it.')
+      setStatus('Track duplicated with independent channels. Editing history reset. Save GP5 to export it.')
     } catch (e) { setStatus(e instanceof Error ? e.message : String(e)) }
     finally { setBusy(false) }
   }
 
-  async function applyFret() {
-    if (!song || !selectedNote || !editing || busy || playing || apiRef.current?.playerState === alphaTab.synth.PlayerState.Playing || !synced) return
-    if (fret.trim() === '' || !Number.isInteger(Number(fret)) || Number(fret) < 0 ||
-        Number(fret) > selectedNote.maxFret || Number(fret) === selectedNote.fret) return
+  async function unlinkTrack(track: Track) {
+    if (!song || !editing || !editMode || busy || playing || !synced ||
+        apiRef.current?.playerState === alphaTab.synth.PlayerState.Playing) return
     setBusy(true)
     apiRef.current?.stop()
     try {
-      const response = await fetch(`${API}/api/sessions/${song.sessionId}/fret`, {
+      const response = await fetch(`${API}/api/sessions/${song.sessionId}/tracks/${track.index}/unlink`, {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ commandId: crypto.randomUUID(), expectedRevision: editing.revision,
-          noteId: selectedNote.id, fret: Number(fret) })
+        body: JSON.stringify({ commandId: crypto.randomUUID(), expectedRevision: editing.revision })
       })
       if (!response.ok) throw new Error(await response.text())
+      const result: { song: Song; editing: EditingState } = await response.json()
+      updateSong(result.song)
+      updateEditing(result.editing)
+      setSynced(false)
+      await reloadSession(song.sessionId, selectedTrack)
+      setStatus(`${track.name} now has independent MIDI channels.`)
+    } catch (error) {
+      setSynced(false)
+      setStatus(error instanceof Error ? error.message : String(error))
+    } finally { setBusy(false) }
+  }
+
+  async function applyFret() {
+    if (!editMode || !song || !selectedNote || !editing || busy || playing || apiRef.current?.playerState === alphaTab.synth.PlayerState.Playing || !synced) return
+    if (fret.trim() === '' || !Number.isInteger(Number(fret)) || Number(fret) < 0 ||
+        Number(fret) > selectedNote.maxFret || (!selectedNote.beatId && Number(fret) === selectedNote.fret)) return
+    setBusy(true)
+    apiRef.current?.stop()
+    try {
+      const response = await fetch(`${API}/api/sessions/${song.sessionId}/${selectedNote.beatId ? 'notes' : 'fret'}`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ commandId: crypto.randomUUID(), expectedRevision: editing.revision,
+          ...(selectedNote.beatId ? { beatId: selectedNote.beatId, string: selectedNote.string } : { noteId: selectedNote.id }), fret: Number(fret) })
+      })
+      if (!response.ok) throw await apiError(response)
       setSynced(false)
       updateEditing(await response.json())
       await reloadSession(song.sessionId, selectedTrack)
@@ -287,6 +455,7 @@ function selectTrack(index: number) {
     setBusy(true)
     apiRef.current?.stop()
     try {
+      await refreshSession()
       const response = await fetch(`${API}/api/sessions/${song.sessionId}/editing`)
       if (!response.ok) throw new Error(await response.text())
       updateEditing(await response.json())
@@ -296,8 +465,36 @@ function selectTrack(index: number) {
     finally { setBusy(false) }
   }
 
+  async function changeTrackSetting(track: Track, change: { solo?: boolean; mute?: boolean; instrument?: number; bank?: number }) {
+    if (!song || !editing || busy || !synced || (change.instrument !== undefined &&
+        (playing || apiRef.current?.playerState === alphaTab.synth.PlayerState.Playing))) return
+    setBusy(true)
+    try {
+      const response = await fetch(`${API}/api/sessions/${song.sessionId}/tracks/${track.index}/settings`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ commandId: crypto.randomUUID(), expectedRevision: editing.revision, ...change })
+      })
+      if (!response.ok) throw new Error(await response.text())
+      const result: { song: Song; editing: EditingState } = await response.json()
+      updateSong(result.song)
+      updateEditing(result.editing)
+      if (change.instrument !== undefined) {
+        setSynced(false)
+        apiRef.current?.stop()
+        await reloadSession(song.sessionId, selectedTrack)
+      } else {
+        applyTrackMix(apiRef.current, result.song.tracks)
+      }
+      setStatus(track.sharedTracks.length > 1 ? 'Updated linked tracks sharing MIDI channels.' : 'Track setting updated.')
+    } catch (error) {
+      apiRef.current?.pause()
+      setSynced(false)
+      setStatus(error instanceof Error ? error.message : String(error))
+    } finally { setBusy(false) }
+  }
+
   async function changeHistory(direction: 'undo' | 'redo') {
-    if (!song || !editing || busy || historyPending.current || playing || !synced ||
+    if (!editMode || !song || !editing || busy || historyPending.current || playing || !synced ||
         apiRef.current?.playerState === alphaTab.synth.PlayerState.Playing ||
         !(direction === 'undo' ? editing.canUndo : editing.canRedo)) return
     historyPending.current = true
@@ -319,6 +516,66 @@ function selectTrack(index: number) {
     } finally { historyPending.current = false; setBusy(false) }
   }
 
+  function toggleEditMode() {
+    if (!song || busy || !synced) return
+    apiRef.current?.pause()
+    setEditMode(value => !value)
+    selectMeasure(null)
+    lastNoteClick.current = null
+    setStatus(editMode ? 'Edit mode exited.' : 'Edit mode: click a bar, Ctrl+C to copy, select a destination and Ctrl+V to replace. Double-click a note to edit its fret.')
+  }
+
+  async function chooseFile(kind: 'score' | 'soundfont') {
+    if (busy || pickerPending.current) return
+    pickerPending.current = true
+    try {
+      const file = await pickFile(kind, () => (kind === 'score' ? scoreFileRef : soundFontFileRef).current?.click())
+      if (file) {
+        if (kind === 'score') await openFile(file)
+        else await changeSoundFont(file)
+      }
+    } catch (error) {
+      setStatus(error instanceof Error ? error.message : String(error))
+    } finally { pickerPending.current = false }
+  }
+
+  async function measureClipboard(action: 'copy' | 'paste') {
+    if (!song || !editing || !editMode || !selectedMeasure || busy || playing || !synced || clipboardPending.current ||
+        apiRef.current?.playerState === alphaTab.synth.PlayerState.Playing) return
+    if (action === 'paste' && !clipboard) { setStatus('Copy a source measure with Ctrl+C first.'); return }
+    clipboardPending.current = true
+    setBusy(true)
+    let committedPaste = false
+    try {
+      const response = await fetch(`${API}/api/sessions/${song.sessionId}/measures/${action}`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ expectedRevision: editing.revision, track: selectedMeasure.track, bar: selectedMeasure.bar,
+          ...(action === 'copy' ? { count: measureCount(selectedMeasure) } : {}),
+          ...(action === 'paste' ? { commandId: crypto.randomUUID(), clipboardId: clipboard!.clipboardId } : {}) })
+      })
+      if (!response.ok) {
+        if (response.status === 409) setSynced(false)
+        throw await apiError(response)
+      }
+      if (action === 'copy') {
+        const copied = await response.json()
+        setClipboard(copied)
+        setStatus(`Copied ${measureCount(selectedMeasure)} bars from track ${selectedMeasure.track + 1}. Select a destination start bar and press Ctrl+V to overwrite.${copied.excludedControllers ? ' Source tempo/instrument/mixer changes are not copied; destination settings are kept.' : ''}`)
+      } else {
+        committedPaste = true
+        setSynced(false)
+        updateEditing(await response.json())
+        selectMeasure({ track: selectedMeasure.track, bar: selectedMeasure.bar,
+          endBar: selectedMeasure.bar + clipboard!.count - 1, anchor: selectedMeasure.bar })
+        await reloadSession(song.sessionId, selectedTrack)
+        setStatus(`${clipboard!.count} destination bars overwritten. Ctrl+Z to undo the whole paste.`)
+      }
+    } catch (error) {
+      if (committedPaste || (error instanceof TypeError)) setSynced(false)
+      setStatus(error instanceof Error ? error.message : String(error))
+    } finally { clipboardPending.current = false; setBusy(false) }
+  }
+
   async function saveGp5() {
     if (!song) return
     setBusy(true)
@@ -335,6 +592,22 @@ function selectTrack(index: number) {
     finally { setBusy(false) }
   }
 
+  function togglePlayback() {
+    const api = apiRef.current as alphaTab.AlphaTabApi | null
+    if (!api || !song || busy || !synced || soundFontPending.current) return
+    if (api.playerState === alphaTab.synth.PlayerState.Playing) {
+      api.pause()
+      setStatus('Playback paused. Space to resume.')
+      return
+    }
+    if (!soundFontUsable || !api.isReadyForPlayback) {
+      setStatus('Player is not ready. Check SoundFont loading.')
+      return
+    }
+    setSelectedNote(null)
+    setStatus(api.play() ? 'Playback started. Space to pause.' : 'Playback could not start.')
+  }
+
   async function changeSoundFont(file: File | null) {
     const api = apiRef.current as alphaTab.AlphaTabApi | null
     if (!api || busy || soundFontPending.current || !soundFontSettled) return
@@ -348,23 +621,27 @@ function selectTrack(index: number) {
     setSoundFontMessage(`Loading ${file?.name ?? DEFAULT_SOUND_FONT_NAME}...`)
     let replacing = false
     try {
-      const data = file ? await readSoundFont(file) : DEFAULT_SOUND_FONT
+      const data = file ? await readSoundFont(file) : await defaultSoundFontData(controller.signal)
+      const nextPresets = parseSoundFontPresets(data)
       if (controller.signal.aborted) return
       replacing = true
       setSoundFontUsable(false)
       await replaceSoundFont(api, data, controller.signal)
       activeSoundFont.current = file
+      setPresets(nextPresets)
       setSoundFontName(file?.name ?? DEFAULT_SOUND_FONT_NAME)
       setSoundFontUsable(true)
-      setSoundFontMessage('SoundFont ready. Press Play to listen.')
+      setSoundFontMessage('SoundFont ready. Press Space to listen.')
     } catch (error) {
       if (controller.signal.aborted) return
       const message = error instanceof Error ? error.message : String(error)
       if (replacing) {
         setSoundFontMessage(`${message} Restoring previous SoundFont...`)
         try {
-          const data = previous ? await readSoundFont(previous) : DEFAULT_SOUND_FONT
+          const data = previous ? await readSoundFont(previous) : await defaultSoundFontData(controller.signal)
           await replaceSoundFont(api, data, controller.signal)
+          setPresets(parseSoundFontPresets(data))
+          setSoundFontName(previous?.name ?? DEFAULT_SOUND_FONT_NAME)
           setSoundFontUsable(true)
           setSoundFontMessage(`${message} Previous SoundFont restored.`)
         } catch (restoreError) {
@@ -383,65 +660,80 @@ function selectTrack(index: number) {
     }
   }
 
+  async function defaultSoundFontData(signal: AbortSignal) {
+    const response = await fetch(DEFAULT_SOUND_FONT, { signal })
+    if (!response.ok) throw new Error('Could not load the default SoundFont.')
+    return new Uint8Array(await response.arrayBuffer())
+  }
+
   return <main className="app">
-    <header className="topbar">
-      <div><div className="brand">GP5 Editor</div><div className="sub">Player · TAB editor prototype</div></div>
-      <label className="open-button">Open GP file<input type="file" disabled={busy} accept=".gp3,.gp4,.gp5" onChange={e => openFile(e.target.files?.[0])} /></label>
-      <button disabled={!song || busy} onClick={saveGp5}>Save GP5</button>
-      <button disabled={!song} onClick={() => apiRef.current?.print()}>Print / PDF</button>
-    </header>
+    <div ref={controlsRef} className="app-controls">
+      <header className="topbar" aria-label="Score controls">
+        <div className="transport-actions" title="Space: play / pause; Ctrl+Z: undo; Ctrl+Shift+Z: redo">
+          <button disabled={!song || busy || !synced || !soundFontUsable} onClick={togglePlayback} aria-keyshortcuts="Space">{playing ? 'Pause' : 'Play'}</button>
+          <button disabled={!song || busy} onClick={() => apiRef.current?.stop()}>Stop</button>
+          <button aria-pressed={editMode} disabled={!song || busy || !synced} onClick={toggleEditMode}>{editMode ? 'Exit edit mode' : 'Enter edit mode'}</button>
+          {editMode && <button disabled={!song || busy || playing || !synced || song.tracks[selectedTrack]?.isPercussionTrack}
+            title={song?.tracks[selectedTrack]?.isPercussionTrack ? 'Independent percussion routing is not supported yet.' : 'Copy this track to independent MIDI channels'}
+            onClick={duplicateTrack}>Duplicate selected track</button>}
+        </div>
+        <div className="file-actions">
+          <div className="soundfont-actions" role="group" aria-label="SoundFont">
+            <button className="open-button" title={soundFontMessage} disabled={busy || !soundFontSettled} onClick={() => chooseFile('soundfont')}>SoundFont</button>
+            <input ref={soundFontFileRef} hidden type="file" accept=".sf2,.sf3" onChange={e => { const file = e.target.files?.[0]; e.target.value = ''; if (file) void changeSoundFont(file) }} />
+            <button disabled={busy || !soundFontSettled} onClick={() => changeSoundFont(null)} title="Use default SoundFont">Default</button>
+            <span className="soundfont-name" title={`${soundFontName}: ${soundFontMessage}`}>{soundFontName}</span>
+          </div>
+          <button className="open-button" disabled={busy} onClick={() => chooseFile('score')}>Open GP file</button>
+          <input ref={scoreFileRef} hidden type="file" accept=".gp3,.gp4,.gp5" onChange={e => { const file = e.target.files?.[0]; e.target.value = ''; if (file) void openFile(file) }} />
+          <button disabled={!song || busy} onClick={saveGp5}>Save GP5</button>
+          <button disabled={!song || busy} onClick={() => apiRef.current?.print()}>Print / PDF</button>
+        </div>
+      </header>
+      <div className="operation-status" role="status" aria-live="polite">{busy ? 'Working... ' : ''}{status}</div>
 
-    <section className="toolbar">
-      <button
-        disabled={!song || busy || !synced || !soundFontUsable}
-        onClick={() => {
-          const api = apiRef.current
 
-          console.log('=== PLAY TEST ===')
-          console.log('API:', api)
-          console.log('Ready:', api?.isReadyForPlayback)
-          console.log('Player mode:', api?.actualPlayerMode)
 
-          const result = api?.play()
-
-          console.log('Play result:', result)
-
-          if (!api?.isReadyForPlayback) {
-            setStatus('Player is not ready. Check SoundFont loading.')
-          } else if (!result) {
-            setStatus('Playback could not start.')
-          } else {
-            setStatus('Playback started.')
-          }
-        }}
-      >
-        Play
-      </button>
-      <button disabled={!song} onClick={() => apiRef.current?.stop()}>Stop</button>
-      <button title="Undo (Ctrl+Z)" aria-keyshortcuts="Control+Z" disabled={!editing?.canUndo || busy || playing || !synced} onClick={() => changeHistory('undo')}>Undo</button>
-      <button title="Redo (Ctrl+Shift+Z)" aria-keyshortcuts="Control+Shift+Z" disabled={!editing?.canRedo || busy || playing || !synced} onClick={() => changeHistory('redo')}>Redo</button>
-      <button disabled={!song || busy || playing || !synced} onClick={duplicateTrack}>Duplicate selected track</button>
-    </section>
-
-    <section className="toolbar" aria-label="SoundFont">
-      <label className="open-button">Load SoundFont<input type="file" accept=".sf2,.sf3" disabled={busy || !soundFontSettled}
-        onChange={e => { const file = e.target.files?.[0]; e.target.value = ''; if (file) void changeSoundFont(file) }} /></label>
-      <button disabled={busy || !soundFontSettled} onClick={() => changeSoundFont(null)}>Use default SoundFont</button>
-      <span>{soundFontName}</span>
-      <span className="muted" role="status">{soundFontMessage}</span>
-    </section>
+    </div>
 
     <section className="toolbar" aria-label="Note editor">
-      <span>{selectedNote ? `Bar ${selectedNote.bar + 1} / selected fret ${selectedNote.fret}` : 'Click an ordinary TAB note to edit its fret.'}</span>
+      <span className="muted soundfont-status" role="status">{soundFontMessage}</span>
+      <span>{editMode ? (selectedMeasure ? `Track ${selectedMeasure.track + 1} / Bars ${selectedMeasure.bar + 1}-${selectedMeasure.endBar + 1} (${measureCount(selectedMeasure)} selected)` : 'Click a bar; Shift+click another bar to select a range. Double-click a note to edit its fret.') : 'View mode'}</span>
+      {editMode && <span className="muted">Ctrl+C: copy range / Ctrl+V: overwrite from selected start / Ctrl+Z: undo{clipboard ? ` / Copied: ${clipboard.count} bars from track ${clipboard.track + 1}` : ''}</span>}
       {song && !synced && !busy && <button onClick={recoverScore}>Reload server score</button>}
     </section>
 
     <div className="workspace">
       <aside className="tracks">
         <h3>Tracks</h3>
-        {song?.tracks.map(track => <button key={track.index} disabled={busy || !synced} className={selectedTrack === track.index ? 'track selected' : 'track'} onClick={() => selectTrack(track.index)}>
-          <span>{track.name}</span><small>{track.measureCount} bars</small>
-        </button>)}
+        {song?.tracks.map(track => {
+          const available = trackPresets(presets, track.isPercussionTrack)
+          const currentBank = track.isPercussionTrack ? track.bank | 128 : track.bank
+          const current = `${currentBank}:${track.instrument}`
+          const present = available.some(p => `${p.bank}:${p.program}` === current)
+          return <div key={track.index} className={selectedTrack === track.index ? 'track-card selected' : 'track-card'}>
+            <button className="track" disabled={busy || !synced} onClick={() => selectTrack(track.index)}>
+              <span>{track.name}</span><small>{track.measureCount} bars</small>
+            </button>
+            <div className="track-mix">
+              <button aria-pressed={track.isSolo} className={track.isSolo ? 'active' : ''} disabled={busy || !synced}
+                onClick={() => changeTrackSetting(track, { solo: !track.isSolo })}>Solo</button>
+              <button aria-pressed={track.isMute} className={track.isMute ? 'active muted-track' : ''} disabled={busy || !synced}
+                onClick={() => changeTrackSetting(track, { mute: !track.isMute })}>Mute</button>
+              {track.sharedTracks.length > 1 && <small title="These tracks share MIDI channels and change together.">Linked: {track.sharedTracks.map(i => i + 1).join(', ')}</small>}
+              {editMode && track.sharedTracks.length > 1 && <button disabled={busy || playing || !synced || track.isPercussionTrack}
+                title={track.isPercussionTrack ? 'Independent percussion routing is not supported yet.' : 'Give this track its own MIDI channels'}
+                onClick={() => unlinkTrack(track)}>Unlink</button>}
+            </div>
+            <select className="track-instrument" aria-label={`${track.name} instrument`} value={current}
+              title="Initial instrument from the loaded SoundFont. Existing in-song instrument changes are preserved."
+              disabled={busy || playing || !synced || !soundFontUsable || !available.length}
+              onChange={e => { const [bank, instrument] = e.target.value.split(':').map(Number); void changeTrackSetting(track, { bank, instrument }) }}>
+              {!present && <option value={current}>{available.length ? 'Current preset not in this SoundFont' : 'No compatible presets'} ({currentBank}:{track.instrument + 1})</option>}
+              {available.map(p => <option key={`${p.bank}:${p.program}`} value={`${p.bank}:${p.program}`}>{p.name || 'Unnamed'} ({p.bank}:{p.program + 1})</option>)}
+            </select>
+          </div>
+        })}
         {!song && <p className="muted">No score loaded</p>}
       </aside>
       <section className="score-area">
@@ -450,8 +742,26 @@ function selectTrack(index: number) {
           {song && <span>{song.tempo} BPM · {song.trackCount} tracks</span>}
         </div>
         <div className="score-scroll"><div ref={scoreCanvasRef} className="score-canvas">
-          <div ref={scoreRef} className="score" />
-          {selectedNote && notePosition && !busy && !playing && synced && <>
+          <div ref={scoreRef} className="score" onPointerDownCapture={event => { selectionShift.current = event.shiftKey }} />
+          {editMode && selectedMeasure && !busy && !playing && synced && measurePositions.map(position =>
+            <div key={position.bar} className="selected-measure-outline" aria-hidden="true" style={{ left: position.x, top: position.y,
+              width: position.width, height: position.height }} />)}
+          {editMode && selectedBeat && !selectedNote && notePosition && !busy && !playing && synced &&
+            <div className="inline-fret-editor" style={{ left: notePosition.editorX, top: notePosition.y + notePosition.height + 8 }}>
+              <span>Select string:</span>
+              {Array.from({ length: selectedBeat.stringCount }, (_, i) => {
+                const string = selectedBeat.stringCount - i
+                const note = editing?.notes.find(n => n.track === selectedBeat.track && n.bar === selectedBeat.bar && n.voice === selectedBeat.voice && n.beat === selectedBeat.beat && n.string === string && n.kind !== 'grace')
+                return <button key={string} disabled={note ? !note.editable : !selectedBeat.canAdd}
+                  title={`String ${i + 1}${note ? `: fret ${note.fret}` : ': add note'}`}
+                  onClick={() => {
+                    setSelectedNote(note ?? { ...selectedBeat, id: '', string, fret: 0, editable: true, beatId: selectedBeat.id })
+                    setFret(String(note?.fret ?? 0))
+                  }}>{i + 1}: {note?.fret ?? '+'}</button>
+              })}
+              <button onClick={() => setSelectedBeat(null)}>Close</button>
+            </div>}
+          {editMode && selectedNote && notePosition && !busy && !playing && synced && <>
             <div className="selected-note-outline" aria-hidden="true" style={{
               left: notePosition.x - 3, top: notePosition.y - 3,
               width: notePosition.width + 6, height: notePosition.height + 6 }} />
@@ -462,7 +772,7 @@ function selectTrack(index: number) {
               <label>Fret <input ref={fretInputRef} aria-label="Fret" type="number" min="0" max={selectedNote.maxFret}
                 required step="1" value={fret} onChange={e => setFret(e.target.value)} /></label>
               <button type="submit" disabled={fret.trim() === '' || !Number.isInteger(Number(fret)) ||
-                Number(fret) < 0 || Number(fret) > selectedNote.maxFret || Number(fret) === selectedNote.fret}>Apply fret</button>
+                Number(fret) < 0 || Number(fret) > selectedNote.maxFret || (!selectedNote.beatId && Number(fret) === selectedNote.fret)}>{selectedNote.beatId ? 'Add note' : 'Apply fret'}</button>
               <button type="button" onClick={() => setSelectedNote(null)}>Cancel</button>
             </form>
           </>}

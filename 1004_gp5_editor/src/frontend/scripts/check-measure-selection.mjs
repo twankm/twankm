@@ -1,0 +1,20 @@
+import assert from 'node:assert/strict'
+import { extendMeasureSelection, measureCount } from '../src/measureSelection.ts'
+
+let selected = extendMeasureSelection(null, 0, 2, false)
+assert.deepEqual(selected, { track: 0, bar: 2, endBar: 2, anchor: 2 })
+selected = extendMeasureSelection(selected, 0, 3, true)
+selected = extendMeasureSelection(selected, 0, 6, true)
+assert.equal(measureCount(selected), 5)
+assert.equal(selected.anchor, 2)
+assert.equal(selected.bar, 2)
+assert.equal(selected.endBar, 6)
+selected = extendMeasureSelection(selected, 0, 0, true)
+assert.deepEqual(selected, { track: 0, bar: 0, endBar: 2, anchor: 2 })
+selected = extendMeasureSelection(selected, 0, 5, false)
+assert.equal(measureCount(selected), 1)
+assert.equal(selected.anchor, 5)
+selected = extendMeasureSelection(selected, 1, 8, true)
+assert.deepEqual(selected, { track: 1, bar: 8, endBar: 8, anchor: 8 })
+assert.deepEqual(extendMeasureSelection(null, 1, 3, true), { track: 1, bar: 3, endBar: 3, anchor: 3 })
+console.log('Shift range selection, anchor, reverse selection and track changes: passed')
