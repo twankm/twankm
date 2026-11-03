@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import * as alphaTab from '@coderline/alphatab'
-import { findEditableNote, findEditableBeat, type EditableBeat, type EditableNote, type EditingState } from './noteEditing'
+import { findEditableNote, findEditableBeat, type EditableBeat, type EditableNote, type EditingState, type Rhythm } from './noteEditing'
 import { historyShortcut } from './historyShortcut'
 import { isPlaybackShortcut } from './playbackShortcut'
 import { createConstantBarCursor } from './constantBarCursor'
@@ -33,6 +33,9 @@ export default function App() {
   const [editing, setEditing] = useState<EditingState | null>(null)
   const [selectedNote, setSelectedNote] = useState<EditableNote | null>(null)
   const [selectedBeat, setSelectedBeat] = useState<EditableBeat | null>(null)
+  const [noteDrafts, setNoteDrafts] = useState<Record<string, string>>({})
+  const [rhythmDraft, setRhythmDraft] = useState<Rhythm | null>(null)
+  useEffect(() => { setRhythmDraft(selectedBeat?.rhythm ?? null) }, [selectedBeat?.id])
   const [notePosition, setNotePosition] = useState<{ x: number; y: number; width: number; height: number; editorX: number } | null>(null)
   const [fret, setFret] = useState('0')
   const [playing, setPlaying] = useState(false)
@@ -78,6 +81,7 @@ export default function App() {
     selectedMeasureRef.current = selection
     setSelectedMeasure(selection)
     setSelectedNote(null)
+    setNoteDrafts({})
     updateMeasurePosition()
   }
 
@@ -262,7 +266,7 @@ export default function App() {
     pendingLoad.current?.resolve()
     pendingLoad.current = null
   })
-  api.renderStarted.on(() => { setSelectedNote(null); setSelectedBeat(null); setMeasurePositions([]) })
+  api.renderStarted.on(() => { setSelectedNote(null); setSelectedBeat(null); setNoteDrafts({}); setMeasurePositions([]) })
   api.beatMouseDown.on(beat => {
     const state = interactionRef.current
     if (!state.editMode || state.busy || state.playing || !state.synced) return
@@ -309,6 +313,7 @@ export default function App() {
     setNotePosition({ x, y, width: bounds.w, height: bounds.h,
       editorX: Math.max(0, Math.min(x, wrapper.clientWidth - 240)) })
     setSelectedNote(match)
+    setSelectedBeat(editingRef.current?.beats.find(b => b.track === match.track && b.bar === match.bar && b.voice === match.voice && b.beat === match.beat) ?? null)
     setFret(String(match.fret))
   })
   return () => {
@@ -427,27 +432,73 @@ function selectTrack(index: number) {
   }
 
   async function applyFret() {
-    if (!editMode || !song || !selectedNote || !editing || busy || playing || apiRef.current?.playerState === alphaTab.synth.PlayerState.Playing || !synced) return
-    if (fret.trim() === '' || !Number.isInteger(Number(fret)) || Number(fret) < 0 ||
-        Number(fret) > selectedNote.maxFret || (!selectedNote.beatId && Number(fret) === selectedNote.fret)) return
+    if (!editMode || !song || !editing || busy || playing || apiRef.current?.playerState === alphaTab.synth.PlayerState.Playing || !synced) return
+    if (!selectedBeat || (selectedNote && !validFretDraft(fret, selectedNote.maxFret))) return
+    const drafts = selectedNote ? { ...noteDrafts, [`${selectedNote.kind ?? 'note'}:${selectedNote.string}`]: fret } : noteDrafts
+    const changes = Object.entries(drafts).map(([key, value]) => {
+      const [kind, string] = key.split(':')
+      return { kind, string: Number(string), fret: value.trim() === '' ? null : Number(value) }
+    }).filter(change => {
+      if (change.kind === 'grace' && drafts[`note:${change.string}`]?.trim() === '') return false
+      const original = editing.notes.find(n => n.track === selectedBeat.track && n.bar === selectedBeat.bar && n.voice === selectedBeat.voice && n.beat === selectedBeat.beat && (n.kind ?? 'note') === change.kind && n.string === change.string)
+      return change.fret !== (original?.fret ?? null)
+    })
+    const rhythm = rhythmDraft && JSON.stringify(rhythmDraft) !== JSON.stringify(selectedBeat.rhythm) ? rhythmDraft : undefined
+    if (!changes.length && !rhythm) return
     setBusy(true)
     apiRef.current?.stop()
     try {
-      const response = await fetch(`${API}/api/sessions/${song.sessionId}/${selectedNote.beatId ? 'notes' : 'fret'}`, {
+      const response = await fetch(`${API}/api/sessions/${song.sessionId}/beat-notes`, {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ commandId: crypto.randomUUID(), expectedRevision: editing.revision,
-          ...(selectedNote.beatId ? { beatId: selectedNote.beatId, string: selectedNote.string } : { noteId: selectedNote.id }), fret: Number(fret) })
+          beatId: selectedBeat.id, changes, rhythm })
       })
-      if (!response.ok) throw await apiError(response)
+      if (!response.ok) {
+        const error = await apiError(response)
+        if (response.status === 422) { setStatus(error.message); return }
+        throw error
+      }
       setSynced(false)
       updateEditing(await response.json())
       await reloadSession(song.sessionId, selectedTrack)
-      setStatus('Fret updated. Save GP5 to download the edited score.')
+      setNoteDrafts({})
+      setStatus('Notes updated. Save GP5 to download the edited score.')
     } catch (e) {
       // A lost response may follow a committed edit. Require an explicit resync.
       setSynced(false)
       setStatus(e instanceof Error ? e.message : String(e))
     } finally { setBusy(false) }
+  }
+
+  function validFretDraft(value: string, max: number) {
+    return value.trim() === '' || (Number.isInteger(Number(value)) && Number(value) >= 0 && Number(value) <= max)
+  }
+
+  function rhythmFields() {
+    if (!rhythmDraft || !selectedBeat) return null
+    return <>
+      <label>Length <select aria-label="Note length" value={rhythmDraft.value}
+        onChange={e => setRhythmDraft({ ...rhythmDraft, value: Number(e.target.value) })}>
+        {[1, 2, 4, 8, 16, 32, 64, 128].map(value => <option key={value} value={value}>{value === 1 ? 'Whole' : `1/${value}`}</option>)}
+      </select></label>
+      <label><input type="checkbox" checked={rhythmDraft.dotted}
+        onChange={e => setRhythmDraft({ ...rhythmDraft, dotted: e.target.checked })} />Dotted</label>
+      <label>Tuplet <select aria-label="Tuplet" value={rhythmDraft.tuplet}
+        onChange={e => setRhythmDraft({ ...rhythmDraft, tuplet: Number(e.target.value) })}>
+        {[1, 3, 5, 6, 7, 9, 10, 11, 12, 13].map(value => <option key={value} value={value}>{value === 1 ? 'None' : `${value}:${value === 3 ? 2 : value <= 7 ? 4 : 8}`}</option>)}
+      </select></label>
+      <small>Length applies to every string at this beat, including rests.</small>
+    </>
+  }
+
+  function nextString() {
+    if (!selectedNote || !selectedBeat || !validFretDraft(fret, selectedNote.maxFret)) return
+    const drafts = { ...noteDrafts, [`${selectedNote.kind ?? 'note'}:${selectedNote.string}`]: fret }
+    setNoteDrafts(drafts)
+    const string = selectedNote.string > 1 ? selectedNote.string - 1 : selectedBeat.stringCount
+    const note = editing?.notes.find(n => n.track === selectedBeat.track && n.bar === selectedBeat.bar && n.voice === selectedBeat.voice && n.beat === selectedBeat.beat && n.string === string && n.kind !== 'grace')
+    setSelectedNote(note ?? { ...selectedBeat, id: '', string, fret: 0, editable: true, beatId: selectedBeat.id })
+    setFret(drafts[`note:${string}`] ?? (note ? String(note.fret) : ''))
   }
 
   async function recoverScore() {
@@ -747,7 +798,9 @@ function selectTrack(index: number) {
             <div key={position.bar} className="selected-measure-outline" aria-hidden="true" style={{ left: position.x, top: position.y,
               width: position.width, height: position.height }} />)}
           {editMode && selectedBeat && !selectedNote && notePosition && !busy && !playing && synced &&
-            <div className="inline-fret-editor" style={{ left: notePosition.editorX, top: notePosition.y + notePosition.height + 8 }}>
+            <div className="inline-fret-editor" style={{ left: notePosition.editorX, top: notePosition.y + notePosition.height + 8 }}
+              onKeyDown={e => { if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) { e.preventDefault(); e.stopPropagation(); void applyFret() } }}>
+              {rhythmFields()}
               <span>Select string:</span>
               {Array.from({ length: selectedBeat.stringCount }, (_, i) => {
                 const string = selectedBeat.stringCount - i
@@ -756,10 +809,11 @@ function selectTrack(index: number) {
                   title={`String ${i + 1}${note ? `: fret ${note.fret}` : ': add note'}`}
                   onClick={() => {
                     setSelectedNote(note ?? { ...selectedBeat, id: '', string, fret: 0, editable: true, beatId: selectedBeat.id })
-                    setFret(String(note?.fret ?? 0))
+                    setFret(noteDrafts[`note:${string}`] ?? (note ? String(note.fret) : ''))
                   }}>{i + 1}: {note?.fret ?? '+'}</button>
               })}
-              <button onClick={() => setSelectedBeat(null)}>Close</button>
+              <button onClick={() => void applyFret()}>Apply Ctrl+Enter</button>
+              <button onClick={() => { setNoteDrafts({}); setSelectedBeat(null) }}>Close</button>
             </div>}
           {editMode && selectedNote && notePosition && !busy && !playing && synced && <>
             <div className="selected-note-outline" aria-hidden="true" style={{
@@ -768,12 +822,19 @@ function selectTrack(index: number) {
             <form className="inline-fret-editor" aria-label="Selected note fret editor"
               style={{ left: notePosition.editorX, top: notePosition.y + notePosition.height + 8 }}
               onSubmit={e => { e.preventDefault(); void applyFret() }}
-              onKeyDown={e => { if (e.key === 'Escape') { e.preventDefault(); setSelectedNote(null) } }}>
+              onKeyDown={e => {
+                if (e.key === 'Enter') { e.preventDefault(); e.stopPropagation(); if (e.ctrlKey || e.metaKey) void applyFret(); else nextString() }
+                if (e.key === 'Escape') { e.preventDefault(); setNoteDrafts({}); setRhythmDraft(selectedBeat?.rhythm ?? null); setSelectedNote(null) }
+              }}>
+              <span>String {selectedBeat ? selectedBeat.stringCount + 1 - selectedNote.string : selectedNote.string}{selectedNote.kind === 'grace' ? ' (grace)' : ''}</span>
+              {rhythmFields()}
               <label>Fret <input ref={fretInputRef} aria-label="Fret" type="number" min="0" max={selectedNote.maxFret}
-                required step="1" value={fret} onChange={e => setFret(e.target.value)} /></label>
-              <button type="submit" disabled={fret.trim() === '' || !Number.isInteger(Number(fret)) ||
-                Number(fret) < 0 || Number(fret) > selectedNote.maxFret || (!selectedNote.beatId && Number(fret) === selectedNote.fret)}>{selectedNote.beatId ? 'Add note' : 'Apply fret'}</button>
-              <button type="button" onClick={() => setSelectedNote(null)}>Cancel</button>
+                step="1" placeholder="Empty = delete" value={fret} onChange={e => setFret(e.target.value)} /></label>
+              <button type="button" onClick={() => setFret('')}>Delete note</button>
+              <button type="button" onClick={nextString} disabled={!validFretDraft(fret, selectedNote.maxFret)}>Next string ↵</button>
+              <button type="submit" disabled={!validFretDraft(fret, selectedNote.maxFret)}>Apply Ctrl+Enter</button>
+              <small>Blank deletes the note. Enter moves to the next string; Ctrl+Enter applies all changes.</small>
+              <button type="button" onClick={() => { setNoteDrafts({}); setRhythmDraft(selectedBeat?.rhythm ?? null); setSelectedNote(null) }}>Cancel</button>
             </form>
           </>}
         </div></div>

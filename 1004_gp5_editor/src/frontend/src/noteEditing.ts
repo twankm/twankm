@@ -5,7 +5,8 @@ export type EditableNote = {
   string: number; fret: number; maxFret: number; editable: boolean
   kind?: 'note' | 'grace'; beatId?: string
 }
-export type EditableBeat = { id: string; track: number; bar: number; voice: number; beat: number; stringCount: number; maxFret: number; canAdd: boolean }
+export type Rhythm = { value: number; dotted: boolean; tuplet: number }
+export type EditableBeat = { id: string; track: number; bar: number; voice: number; beat: number; stringCount: number; maxFret: number; canAdd: boolean; rhythm: Rhythm }
 export type EditingState = {
   revision: number; notes: EditableNote[]; voices: Record<string, number[][][]>
   canUndo: boolean; canRedo: boolean

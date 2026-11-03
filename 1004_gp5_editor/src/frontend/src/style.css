@@ -43,6 +43,8 @@ button:disabled { opacity: .45; cursor: not-allowed; }
 .inline-fret-editor label { display:flex; align-items:center; gap:6px; }
 .inline-fret-editor input { width:62px; padding:6px; border:1px solid #8a9690; border-radius:4px; font:inherit; }
 .inline-fret-editor button { padding:6px 8px; }
+.inline-fret-editor input[type="checkbox"] { width:auto; }
+.inline-fret-editor select { max-width:120px; padding:5px; font:inherit; }
 footer { display:flex; justify-content:space-between; gap:12px; padding:10px 18px; background:#fff; border-top:1px solid #dfe3e8; color:#68727e; font-size:12px; }
 @media (max-width:700px) { .workspace { grid-template-columns:1fr; }.tracks { border-right:0; border-bottom:1px solid #dfe3e8; }.topbar { flex-wrap:wrap; gap:6px; padding:4px 10px; }.file-actions { flex-wrap:wrap; }.topbar .transport-actions { flex-wrap:wrap; } }
 @media print {

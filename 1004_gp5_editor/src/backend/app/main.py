@@ -94,6 +94,8 @@ def _beats(session):
                     result.append(dict(id=f'beat:{session["revision"]}:{ti}:{mi}:{vi}:{bi}', track=ti,
                                        bar=mi, voice=rendered, beat=bi, stringCount=len(track.strings),
                                        maxFret=min(track.fretCount, 99), path=(ti, mi, vi, bi), voiceShape=shape,
+                                       rhythm=dict(value=beat.duration.value, dotted=beat.duration.isDotted,
+                                                   tuplet=beat.duration.tuplet.enters),
                                        canAdd=not track.isPercussionTrack and beat.status != guitarpro.models.BeatStatus.empty))
                 rendered += 1
     return result
@@ -143,6 +145,109 @@ class AddNoteRequest(HistoryRequest):
     beatId: str
     string: int = Field(ge=1, le=7, strict=True)
     fret: int = Field(ge=0, le=99, strict=True)
+
+
+class NoteChange(BaseModel):
+    kind: Literal['note', 'grace'] = 'note'
+    string: int = Field(ge=1, le=7, strict=True)
+    fret: int | None = Field(default=None, ge=0, le=99, strict=True)
+
+
+class RhythmRequest(BaseModel):
+    value: Literal[1, 2, 4, 8, 16, 32, 64, 128]
+    dotted: bool = Field(strict=True)
+    tuplet: Literal[1, 3, 5, 6, 7, 9, 10, 11, 12, 13]
+
+
+class BeatEditRequest(HistoryRequest):
+    beatId: str
+    changes: list[NoteChange] = Field(default_factory=list, max_length=14)
+    rhythm: RhythmRequest | None = None
+
+
+@app.post('/api/sessions/{session_id}/beat-notes')
+def edit_beat_notes(session_id: str, request: BeatEditRequest):
+    with EDIT_LOCK:
+        session = SESSIONS.get(session_id)
+        if not session:
+            raise HTTPException(404, 'Session not found.')
+        command = {'operation': 'beat-notes', **request.model_dump()}
+        if request.commandId in session['commands']:
+            if session['commands'][request.commandId] != command:
+                raise HTTPException(409, 'Command ID already used.')
+            return _editing_state(session)
+        if request.expectedRevision != session['revision']:
+            raise HTTPException(409, 'Score changed. Reload before editing.')
+        target = next((b for b in _beats(session) if b['id'] == request.beatId), None)
+        if not target or not target['canAdd']:
+            raise HTTPException(422, 'Select an editable beat.')
+        if len({(c.kind, c.string) for c in request.changes}) != len(request.changes):
+            raise HTTPException(422, 'Each string can be changed only once.')
+        ti, mi, vi, bi = target['path']
+        candidate = copy.deepcopy(session['song'])
+        beat = candidate.tracks[ti].measures[mi].voices[vi].beats[bi]
+        bars = {mi}
+        if not request.changes and request.rhythm is None:
+            raise HTTPException(422, 'Provide note or rhythm changes.')
+        if request.rhythm is not None:
+            rhythm = request.rhythm
+            old_total = sum(b.duration.time for b in beat.voice.beats if b.status != guitarpro.models.BeatStatus.empty)
+            times = dict(guitarpro.models.Tuplet.supportedTuplets)[rhythm.tuplet]
+            beat.duration = guitarpro.models.Duration(value=rhythm.value, isDotted=rhythm.dotted,
+                                                     tuplet=guitarpro.models.Tuplet(rhythm.tuplet, times))
+            new_total = sum(b.duration.time for b in beat.voice.beats if b.status != guitarpro.models.BeatStatus.empty)
+            if new_total > max(old_total, beat.voice.measure.header.length):
+                raise HTTPException(422, 'This duration exceeds the measure length. Shorten another note first.')
+            start = beat.voice.measure.start
+            for following in beat.voice.beats:
+                following.start = start
+                if following.status != guitarpro.models.BeatStatus.empty:
+                    start += following.duration.time
+        for change in request.changes:
+            if change.string > target['stringCount'] or (change.fret is not None and change.fret > target['maxFret']):
+                raise HTTPException(422, 'String or fret is outside the track range.')
+            string = target['stringCount'] + 1 - change.string
+            note = next((n for n in beat.notes if n.string == string), None)
+            if change.kind == 'grace':
+                if not note or not note.effect.grace:
+                    raise HTTPException(422, 'Grace note not found.')
+                if change.fret is None:
+                    note.effect.grace = None
+                else:
+                    note.effect.grace.fret = change.fret
+            elif change.fret is None:
+                if note:
+                    chain = [(bar, n) for bar, m in enumerate(candidate.tracks[ti].measures)
+                             for b in m.voices[vi].beats for n in b.notes if n.string == string]
+                    index = next(i for i, (_, n) in enumerate(chain) if n is note)
+                    if index + 1 < len(chain) and chain[index + 1][1].type == guitarpro.models.NoteType.tie:
+                        bar, following = chain[index + 1]
+                        # Removing an attack must not make the next tied note inherit
+                        # the pitch of an unrelated earlier note on this string.
+                        following.type = guitarpro.models.NoteType.normal
+                        bars.add(bar)
+                    beat.notes.remove(note)
+            elif note:
+                chain = [(bar, n) for bar, m in enumerate(candidate.tracks[ti].measures)
+                         for b in m.voices[vi].beats for n in b.notes if n.string == string]
+                start = next(i for i, (_, n) in enumerate(chain) if n is note)
+                while start > 0 and chain[start][1].type == guitarpro.models.NoteType.tie:
+                    start -= 1
+                if chain[start][1].type == guitarpro.models.NoteType.tie:
+                    raise HTTPException(422, 'This tie has no preceding note.')
+                end = start + 1
+                while end < len(chain) and chain[end][1].type == guitarpro.models.NoteType.tie:
+                    end += 1
+                for bar, linked in chain[start:end]:
+                    linked.value = change.fret
+                    bars.add(bar)
+            else:
+                beat.notes.append(guitarpro.models.Note(beat, string=string, value=change.fret, type=guitarpro.models.NoteType.normal))
+        beat.notes.sort(key=lambda n: n.string)
+        beat.status = guitarpro.models.BeatStatus.normal if beat.notes else guitarpro.models.BeatStatus.rest
+        _commit_note_candidate(session, candidate, ti, sorted(bars))
+        session['commands'][request.commandId] = command
+        return _editing_state(session)
 
 
 @app.post('/api/sessions/{session_id}/notes')
