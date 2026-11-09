@@ -9,6 +9,9 @@ button:disabled { opacity: .45; cursor: not-allowed; }
 .operation-status { padding:3px 18px; border-bottom:1px solid #dfe3e8; color:#52606a; font-size:12px; line-height:1.4; overflow-wrap:anywhere; }
 .topbar { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px 12px; min-height:38px; padding:4px 18px; background:#fff; border-bottom:1px solid #dfe3e8; }
 .transport-actions, .file-actions { display:flex; align-items:center; gap:6px; }
+.playback-speed { display:flex; align-items:center; gap:4px; font-size:12px; }
+.playback-speed input[type="range"] { width:110px; margin:0; accent-color:#25825b; }
+.playback-speed input[type="number"] { width:62px; padding:4px; border:1px solid #cbd1d8; border-radius:5px; font:inherit; }
 .file-actions { margin-left:auto; justify-content:flex-end; flex-wrap:wrap; min-width:0; max-width:100%; }
 .soundfont-actions { display:flex; align-items:center; gap:6px; padding-right:10px; margin-right:4px; border-right:1px solid #dfe3e8; }
 .soundfont-name { max-width:140px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:12px; color:#68727e; }

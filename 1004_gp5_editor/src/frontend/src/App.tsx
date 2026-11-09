@@ -11,6 +11,7 @@ import { pickFile } from './filePicker'
 import { measureShortcut } from './measureShortcut'
 import { extendMeasureSelection, measureCount, type MeasureSelection } from './measureSelection'
 import { apiError } from './apiError'
+import { loadScoreSafely } from './scoreLoading'
 
 const API = import.meta.env.VITE_API_BASE || 'http://127.0.0.1:8000'
 
@@ -35,10 +36,15 @@ export default function App() {
   const [selectedBeat, setSelectedBeat] = useState<EditableBeat | null>(null)
   const [noteDrafts, setNoteDrafts] = useState<Record<string, string>>({})
   const [rhythmDraft, setRhythmDraft] = useState<Rhythm | null>(null)
+  const [appendBeat, setAppendBeat] = useState(false)
+  useEffect(() => { setAppendBeat(false) }, [selectedBeat?.id])
   useEffect(() => { setRhythmDraft(selectedBeat?.rhythm ?? null) }, [selectedBeat?.id])
   const [notePosition, setNotePosition] = useState<{ x: number; y: number; width: number; height: number; editorX: number } | null>(null)
   const [fret, setFret] = useState('0')
   const [playing, setPlaying] = useState(false)
+  const [playbackSpeed, setPlaybackSpeed] = useState(1)
+  const [speedInput, setSpeedInput] = useState('1.00')
+  const playbackSpeedRef = useRef(1)
   const [synced, setSynced] = useState(false)
   const editingRef = useRef<EditingState | null>(null)
   const pendingLoad = useRef<{ resolve: () => void; reject: (error: Error) => void } | null>(null)
@@ -191,13 +197,16 @@ export default function App() {
         reject: error => { window.clearTimeout(timeout); reject(error) }
       }
       try {
-        if (!apiRef.current?.load(bytes, [track])) throw new Error('alphaTab rejected the file data.')
+        if (!apiRef.current) throw new Error('Player is not initialized.')
+        const selected = loadScoreSafely(apiRef.current, bytes, track)
+        setSelectedTrack(selected)
       } catch (error) {
         pendingLoad.current?.reject(error instanceof Error ? error : new Error(String(error)))
         pendingLoad.current = null
       }
     })
     if (songRef.current && apiRef.current) applyTrackMix(apiRef.current, songRef.current.tracks)
+    if (apiRef.current) apiRef.current.playbackSpeed = playbackSpeedRef.current
     setSynced(true)
   }
 
@@ -220,6 +229,7 @@ export default function App() {
       layoutMode: alphaTab.LayoutMode.Page,
       staveProfile: alphaTab.StaveProfile.Tab
     },
+    notation: { rhythmMode: alphaTab.TabRhythmMode.ShowWithBars },
     player: {
       enablePlayer: true,
       playerMode: 'EnabledSynthesizer',
@@ -237,6 +247,7 @@ export default function App() {
   apiRef.current = api
   api.customCursorHandler = createConstantBarCursor(api)
   api.playerReady.on(() => {
+    api.playbackSpeed = playbackSpeedRef.current
     if (songRef.current) applyTrackMix(api, songRef.current.tracks)
     setStatus('Player ready.')
   })
@@ -408,6 +419,32 @@ function selectTrack(index: number) {
     finally { setBusy(false) }
   }
 
+  async function deleteTrack() {
+    if (!song || !editing || !editMode || busy || playing || !synced || song.tracks.length <= 1) return
+    setBusy(true)
+    apiRef.current?.stop()
+    try {
+      const response = await fetch(`${API}/api/sessions/${song.sessionId}/tracks/${selectedTrack}/delete`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ commandId: crypto.randomUUID(), expectedRevision: editing.revision })
+      })
+      if (!response.ok) throw await apiError(response)
+      const result = await response.json()
+      setSynced(false)
+      updateSong(result.song)
+      updateEditing(result.editing)
+      setClipboard(null)
+      selectMeasure(null)
+      const next = Math.min(selectedTrack, result.song.tracks.length - 1)
+      setSelectedTrack(next)
+      await reloadSession(song.sessionId, next)
+      setStatus('Track deleted. Ctrl+Z restores it. Save GP5 to export the change.')
+    } catch (error) {
+      setSynced(false)
+      setStatus(error instanceof Error ? error.message : String(error))
+    } finally { setBusy(false) }
+  }
+
   async function unlinkTrack(track: Track) {
     if (!song || !editing || !editMode || busy || playing || !synced ||
         apiRef.current?.playerState === alphaTab.synth.PlayerState.Playing) return
@@ -440,10 +477,10 @@ function selectTrack(index: number) {
       return { kind, string: Number(string), fret: value.trim() === '' ? null : Number(value) }
     }).filter(change => {
       if (change.kind === 'grace' && drafts[`note:${change.string}`]?.trim() === '') return false
-      const original = editing.notes.find(n => n.track === selectedBeat.track && n.bar === selectedBeat.bar && n.voice === selectedBeat.voice && n.beat === selectedBeat.beat && (n.kind ?? 'note') === change.kind && n.string === change.string)
+      const original = appendBeat ? undefined : editing.notes.find(n => n.track === selectedBeat.track && n.bar === selectedBeat.bar && n.voice === selectedBeat.voice && n.beat === selectedBeat.beat && (n.kind ?? 'note') === change.kind && n.string === change.string)
       return change.fret !== (original?.fret ?? null)
     })
-    const rhythm = rhythmDraft && JSON.stringify(rhythmDraft) !== JSON.stringify(selectedBeat.rhythm) ? rhythmDraft : undefined
+    const rhythm = rhythmDraft && (appendBeat || JSON.stringify(rhythmDraft) !== JSON.stringify(selectedBeat.rhythm)) ? rhythmDraft : undefined
     if (!changes.length && !rhythm) return
     setBusy(true)
     apiRef.current?.stop()
@@ -451,7 +488,7 @@ function selectTrack(index: number) {
       const response = await fetch(`${API}/api/sessions/${song.sessionId}/beat-notes`, {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ commandId: crypto.randomUUID(), expectedRevision: editing.revision,
-          beatId: selectedBeat.id, changes, rhythm })
+          beatId: selectedBeat.id, changes, rhythm, append: appendBeat })
       })
       if (!response.ok) {
         const error = await apiError(response)
@@ -477,6 +514,7 @@ function selectTrack(index: number) {
   function rhythmFields() {
     if (!rhythmDraft || !selectedBeat) return null
     return <>
+      <small>{appendBeat ? 'New beat at end of measure' : 'Selected beat'} · Remaining: {(selectedBeat.remainingTicks / 960).toFixed(3).replace(/\.?0+$/, '')} beats</small>
       <label>Length <select aria-label="Note length" value={rhythmDraft.value}
         onChange={e => setRhythmDraft({ ...rhythmDraft, value: Number(e.target.value) })}>
         {[1, 2, 4, 8, 16, 32, 64, 128].map(value => <option key={value} value={value}>{value === 1 ? 'Whole' : `1/${value}`}</option>)}
@@ -491,12 +529,26 @@ function selectTrack(index: number) {
     </>
   }
 
+  function startNewBeat() {
+    if (!selectedBeat || selectedBeat.remainingTicks <= 0) return
+    const durations = [1, 2, 4, 8, 16, 32, 64, 128].flatMap(value =>
+      [false, true].map(dotted => ({ value, dotted, tuplet: 1, ticks: 3840 / value * (dotted ? 1.5 : 1) })))
+      .filter(r => r.ticks <= selectedBeat.remainingTicks).sort((a, b) => b.ticks - a.ticks)
+    if (!durations.length) { setStatus('The remaining time is shorter than a 128th note.'); return }
+    const { value, dotted, tuplet } = durations[0]
+    setAppendBeat(true)
+    setRhythmDraft({ value, dotted, tuplet })
+    setNoteDrafts({})
+    setSelectedNote({ ...selectedBeat, id: '', string: selectedBeat.stringCount, fret: 0, editable: true, beatId: selectedBeat.id })
+    setFret('')
+  }
+
   function nextString() {
     if (!selectedNote || !selectedBeat || !validFretDraft(fret, selectedNote.maxFret)) return
     const drafts = { ...noteDrafts, [`${selectedNote.kind ?? 'note'}:${selectedNote.string}`]: fret }
     setNoteDrafts(drafts)
     const string = selectedNote.string > 1 ? selectedNote.string - 1 : selectedBeat.stringCount
-    const note = editing?.notes.find(n => n.track === selectedBeat.track && n.bar === selectedBeat.bar && n.voice === selectedBeat.voice && n.beat === selectedBeat.beat && n.string === string && n.kind !== 'grace')
+    const note = appendBeat ? undefined : editing?.notes.find(n => n.track === selectedBeat.track && n.bar === selectedBeat.bar && n.voice === selectedBeat.voice && n.beat === selectedBeat.beat && n.string === string && n.kind !== 'grace')
     setSelectedNote(note ?? { ...selectedBeat, id: '', string, fret: 0, editable: true, beatId: selectedBeat.id })
     setFret(drafts[`note:${string}`] ?? (note ? String(note.fret) : ''))
   }
@@ -506,11 +558,14 @@ function selectTrack(index: number) {
     setBusy(true)
     apiRef.current?.stop()
     try {
-      await refreshSession()
+      const summaryResponse = await fetch(`${API}/api/sessions/${song.sessionId}`)
+      if (!summaryResponse.ok) throw await apiError(summaryResponse)
+      const summary: Song = await summaryResponse.json()
+      updateSong(summary)
       const response = await fetch(`${API}/api/sessions/${song.sessionId}/editing`)
       if (!response.ok) throw new Error(await response.text())
       updateEditing(await response.json())
-      await reloadSession(song.sessionId, selectedTrack)
+      await reloadSession(song.sessionId, Math.min(selectedTrack, summary.tracks.length - 1))
       setStatus('Score synchronized.')
     } catch (e) { setStatus(e instanceof Error ? e.message : String(e)) }
     finally { setBusy(false) }
@@ -559,8 +614,16 @@ function selectTrack(index: number) {
       if (!response.ok) throw new Error(await response.text())
       setSynced(false)
       updateEditing(await response.json())
-      await reloadSession(song.sessionId, selectedTrack)
-      setStatus(direction === 'undo' ? 'Fret change undone.' : 'Fret change redone.')
+      const summaryResponse = await fetch(`${API}/api/sessions/${song.sessionId}`)
+      if (!summaryResponse.ok) throw await apiError(summaryResponse)
+      const summary: Song = await summaryResponse.json()
+      updateSong(summary)
+      const next = Math.min(selectedTrack, summary.tracks.length - 1)
+      setSelectedTrack(next)
+      setClipboard(null)
+      selectMeasure(null)
+      await reloadSession(song.sessionId, next)
+      setStatus(direction === 'undo' ? 'Change undone.' : 'Change redone.')
     } catch (e) {
       setSynced(false)
       setStatus(e instanceof Error ? e.message : String(e))
@@ -659,6 +722,20 @@ function selectTrack(index: number) {
     setStatus(api.play() ? 'Playback started. Space to pause.' : 'Playback could not start.')
   }
 
+  function changePlaybackSpeed(value: number) {
+    const speed = Math.round(Math.max(0.1, Math.min(2, value)) * 20) / 20
+    playbackSpeedRef.current = speed
+    setPlaybackSpeed(speed)
+    setSpeedInput(speed.toFixed(2))
+    if (apiRef.current) apiRef.current.playbackSpeed = speed
+  }
+
+  function commitSpeedInput() {
+    const value = Number(speedInput)
+    if (speedInput.trim() && Number.isFinite(value)) changePlaybackSpeed(value)
+    else setSpeedInput(playbackSpeedRef.current.toFixed(2))
+  }
+
   async function changeSoundFont(file: File | null) {
     const api = apiRef.current as alphaTab.AlphaTabApi | null
     if (!api || busy || soundFontPending.current || !soundFontSettled) return
@@ -722,11 +799,32 @@ function selectTrack(index: number) {
       <header className="topbar" aria-label="Score controls">
         <div className="transport-actions" title="Space: play / pause; Ctrl+Z: undo; Ctrl+Shift+Z: redo">
           <button disabled={!song || busy || !synced || !soundFontUsable} onClick={togglePlayback} aria-keyshortcuts="Space">{playing ? 'Pause' : 'Play'}</button>
+          <div className="playback-speed" title="Playback speed">
+            <input aria-label="Playback speed slider" type="range" min="0.1" max="2" step="0.05"
+              value={playbackSpeed} onChange={e => changePlaybackSpeed(Number(e.target.value))} />
+            <input aria-label="Playback speed" type="number" min="0.1" max="2" step="0.05"
+              value={speedInput} onChange={e => {
+                const text = e.target.value
+                setSpeedInput(text)
+                const value = Number(text)
+                if (text.trim() && value >= 0.1 && value <= 2 && Math.abs(value * 20 - Math.round(value * 20)) < 1e-8) {
+                  playbackSpeedRef.current = value
+                  setPlaybackSpeed(value)
+                  if (apiRef.current) apiRef.current.playbackSpeed = value
+                }
+              }} onBlur={commitSpeedInput} onKeyDown={e => {
+                if (e.key === 'Enter') { e.preventDefault(); e.stopPropagation(); commitSpeedInput() }
+              }} />
+            <span aria-hidden="true">×</span>
+          </div>
           <button disabled={!song || busy} onClick={() => apiRef.current?.stop()}>Stop</button>
           <button aria-pressed={editMode} disabled={!song || busy || !synced} onClick={toggleEditMode}>{editMode ? 'Exit edit mode' : 'Enter edit mode'}</button>
           {editMode && <button disabled={!song || busy || playing || !synced || song.tracks[selectedTrack]?.isPercussionTrack}
             title={song?.tracks[selectedTrack]?.isPercussionTrack ? 'Independent percussion routing is not supported yet.' : 'Copy this track to independent MIDI channels'}
             onClick={duplicateTrack}>Duplicate selected track</button>}
+          {editMode && <button disabled={!song || busy || playing || !synced || song.tracks.length <= 1}
+            title={song?.tracks.length === 1 ? 'At least one track must remain.' : 'Delete this track (Ctrl+Z to restore)'}
+            onClick={() => void deleteTrack()}>Delete selected track</button>}
         </div>
         <div className="file-actions">
           <div className="soundfont-actions" role="group" aria-label="SoundFont">
@@ -802,6 +900,7 @@ function selectTrack(index: number) {
               onKeyDown={e => { if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) { e.preventDefault(); e.stopPropagation(); void applyFret() } }}>
               {rhythmFields()}
               <span>Select string:</span>
+              <button disabled={!selectedBeat.canAdd || selectedBeat.remainingTicks <= 0} onClick={startNewBeat}>Add beat at end</button>
               {Array.from({ length: selectedBeat.stringCount }, (_, i) => {
                 const string = selectedBeat.stringCount - i
                 const note = editing?.notes.find(n => n.track === selectedBeat.track && n.bar === selectedBeat.bar && n.voice === selectedBeat.voice && n.beat === selectedBeat.beat && n.string === string && n.kind !== 'grace')
@@ -824,7 +923,7 @@ function selectTrack(index: number) {
               onSubmit={e => { e.preventDefault(); void applyFret() }}
               onKeyDown={e => {
                 if (e.key === 'Enter') { e.preventDefault(); e.stopPropagation(); if (e.ctrlKey || e.metaKey) void applyFret(); else nextString() }
-                if (e.key === 'Escape') { e.preventDefault(); setNoteDrafts({}); setRhythmDraft(selectedBeat?.rhythm ?? null); setSelectedNote(null) }
+                if (e.key === 'Escape') { e.preventDefault(); setAppendBeat(false); setNoteDrafts({}); setRhythmDraft(selectedBeat?.rhythm ?? null); setSelectedNote(null) }
               }}>
               <span>String {selectedBeat ? selectedBeat.stringCount + 1 - selectedNote.string : selectedNote.string}{selectedNote.kind === 'grace' ? ' (grace)' : ''}</span>
               {rhythmFields()}
@@ -834,7 +933,7 @@ function selectTrack(index: number) {
               <button type="button" onClick={nextString} disabled={!validFretDraft(fret, selectedNote.maxFret)}>Next string ↵</button>
               <button type="submit" disabled={!validFretDraft(fret, selectedNote.maxFret)}>Apply Ctrl+Enter</button>
               <small>Blank deletes the note. Enter moves to the next string; Ctrl+Enter applies all changes.</small>
-              <button type="button" onClick={() => { setNoteDrafts({}); setRhythmDraft(selectedBeat?.rhythm ?? null); setSelectedNote(null) }}>Cancel</button>
+              <button type="button" onClick={() => { setAppendBeat(false); setNoteDrafts({}); setRhythmDraft(selectedBeat?.rhythm ?? null); setSelectedNote(null) }}>Cancel</button>
             </form>
           </>}
         </div></div>

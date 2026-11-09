@@ -1,0 +1,4 @@
+(fp_lib_table
+	(version 7)
+	(lib (name "VeroBoard") (type "KiCad") (uri "${KIPRJMOD}/footprints/3pdt/VeroBoard.pretty") (options "") (descr ""))
+)

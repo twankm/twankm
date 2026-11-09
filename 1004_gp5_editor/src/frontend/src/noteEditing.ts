@@ -6,7 +6,7 @@ export type EditableNote = {
   kind?: 'note' | 'grace'; beatId?: string
 }
 export type Rhythm = { value: number; dotted: boolean; tuplet: number }
-export type EditableBeat = { id: string; track: number; bar: number; voice: number; beat: number; stringCount: number; maxFret: number; canAdd: boolean; rhythm: Rhythm }
+export type EditableBeat = { id: string; track: number; bar: number; voice: number; beat: number; stringCount: number; maxFret: number; canAdd: boolean; rhythm: Rhythm; remainingTicks: number }
 export type EditingState = {
   revision: number; notes: EditableNote[]; voices: Record<string, number[][][]>
   canUndo: boolean; canRedo: boolean

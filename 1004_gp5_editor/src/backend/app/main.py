@@ -96,6 +96,7 @@ def _beats(session):
                                        maxFret=min(track.fretCount, 99), path=(ti, mi, vi, bi), voiceShape=shape,
                                        rhythm=dict(value=beat.duration.value, dotted=beat.duration.isDotted,
                                                    tuplet=beat.duration.tuplet.enters),
+                                       remainingTicks=float(max(0, measure.header.length - sum(b.duration.time for b in voice.beats if b.status != guitarpro.models.BeatStatus.empty))),
                                        canAdd=not track.isPercussionTrack and beat.status != guitarpro.models.BeatStatus.empty))
                 rendered += 1
     return result
@@ -163,6 +164,7 @@ class BeatEditRequest(HistoryRequest):
     beatId: str
     changes: list[NoteChange] = Field(default_factory=list, max_length=14)
     rhythm: RhythmRequest | None = None
+    append: bool = Field(default=False, strict=True)
 
 
 @app.post('/api/sessions/{session_id}/beat-notes')
@@ -187,16 +189,23 @@ def edit_beat_notes(session_id: str, request: BeatEditRequest):
         candidate = copy.deepcopy(session['song'])
         beat = candidate.tracks[ti].measures[mi].voices[vi].beats[bi]
         bars = {mi}
+        old_total = sum(b.duration.time for b in beat.voice.beats if b.status != guitarpro.models.BeatStatus.empty)
+        if request.append:
+            if request.rhythm is None or any(c.kind == 'grace' for c in request.changes):
+                raise HTTPException(422, 'Choose a duration and ordinary notes for the new beat.')
+            voice = beat.voice
+            beat = guitarpro.models.Beat(voice, status=guitarpro.models.BeatStatus.rest)
+            voice.beats.append(beat)
         if not request.changes and request.rhythm is None:
             raise HTTPException(422, 'Provide note or rhythm changes.')
         if request.rhythm is not None:
             rhythm = request.rhythm
-            old_total = sum(b.duration.time for b in beat.voice.beats if b.status != guitarpro.models.BeatStatus.empty)
             times = dict(guitarpro.models.Tuplet.supportedTuplets)[rhythm.tuplet]
             beat.duration = guitarpro.models.Duration(value=rhythm.value, isDotted=rhythm.dotted,
                                                      tuplet=guitarpro.models.Tuplet(rhythm.tuplet, times))
             new_total = sum(b.duration.time for b in beat.voice.beats if b.status != guitarpro.models.BeatStatus.empty)
-            if new_total > max(old_total, beat.voice.measure.header.length):
+            limit = beat.voice.measure.header.length if request.append else max(old_total, beat.voice.measure.header.length)
+            if new_total > limit:
                 raise HTTPException(422, 'This duration exceeds the measure length. Shorten another note first.')
             start = beat.voice.measure.start
             for following in beat.voice.beats:
@@ -467,6 +476,18 @@ def change_history(session_id: str, direction: Literal["undo", "redo"], request:
         if not source:
             raise HTTPException(409, f"Nothing to {direction}.")
         entry = source[-1]
+        if entry.get('kind') == 'tracks':
+            prefix = 'before' if direction == 'undo' else 'after'
+            candidate = copy.deepcopy(entry[prefix + 'Song'])
+            validate_song(candidate)
+            session['song'] = candidate
+            session['note_ids'] = entry[prefix + 'Ids'].copy()
+            session.pop('clipboard', None)
+            source.pop()
+            destination.append(entry)
+            session['revision'] += 1
+            session['commands'][request.commandId] = command
+            return _editing_state(session)
         if entry.get('kind') in {'measure', 'measures'}:
             candidate = copy.deepcopy(session['song'])
             prefix = 'before' if direction == 'undo' else 'after'
@@ -687,6 +708,50 @@ def duplicate_track(session_id: str, track_index: int, request: DuplicateTrackRe
         session["redo"].clear()
         session["revision"] += 1
         return _song_summary(candidate, session_id)
+
+
+@app.post('/api/sessions/{session_id}/tracks/{track_index}/delete')
+def delete_track(session_id: str, track_index: int, request: HistoryRequest):
+    with EDIT_LOCK:
+        session = SESSIONS.get(session_id)
+        if not session:
+            raise HTTPException(404, 'Session not found.')
+        command = {'operation': 'delete-track', 'track': track_index, **request.model_dump()}
+        if request.commandId in session['commands']:
+            if session['commands'][request.commandId] != command:
+                raise HTTPException(409, 'Command ID already used.')
+            return {'song': _song_summary(session['song'], session_id), 'editing': _editing_state(session)}
+        if request.expectedRevision != session['revision']:
+            raise HTTPException(409, 'Score changed. Reload before deleting a track.')
+        song = session['song']
+        if not 0 <= track_index < len(song.tracks):
+            raise HTTPException(404, 'Track not found.')
+        if len(song.tracks) <= 1:
+            raise HTTPException(422, 'At least one track must remain.')
+        candidate = copy.deepcopy(song)
+        del candidate.tracks[track_index]
+        for i, track in enumerate(candidate.tracks):
+            track.number = i + 1
+        parsed = validate_song(candidate)
+        if len(parsed.tracks) != len(candidate.tracks):
+            raise HTTPException(422, 'Track deletion did not survive GP5 serialization.')
+        for expected, actual in zip(candidate.tracks, parsed.tracks):
+            if expected.channel != actual.channel or any(detached_voices(a) != detached_voices(b)
+                    for a, b in zip(expected.measures, actual.measures)):
+                raise HTTPException(422, 'Track deletion would change remaining notes or instruments.')
+        _notes(session)
+        before_ids = session['note_ids'].copy()
+        after_ids = {(p[0] - (p[0] > track_index), *p[1:]): identity
+                     for p, identity in before_ids.items() if p[0] != track_index}
+        session['undo'].append(dict(kind='tracks', beforeSong=copy.deepcopy(song), afterSong=copy.deepcopy(candidate),
+                                    beforeIds=before_ids, afterIds=after_ids))
+        del session['undo'][:-HISTORY_LIMIT]
+        session['redo'].clear()
+        session['song'], session['note_ids'] = candidate, after_ids
+        session.pop('clipboard', None)
+        session['revision'] += 1
+        session['commands'][request.commandId] = command
+        return {'song': _song_summary(candidate, session_id), 'editing': _editing_state(session)}
 
 
 @app.post('/api/sessions/{session_id}/tracks/{track_index}/unlink')
